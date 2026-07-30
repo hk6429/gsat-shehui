@@ -45,7 +45,7 @@
     </section>
 
     <section class="intro-box no-print" id="introBox">
-      <h2>涵蓋 115 學年度社會考科．<span id="totalStat">—</span> 題附官方資料</h2>
+      <h2>涵蓋 114–115 學年度社會考科．<span id="totalStat">—</span> 題附官方資料</h2>
       <b>這是什麼？</b>從大學學測社會考科中，挑選年份、學科、能力目標、題型與題數，當場作答、立刻看到對錯。選擇題附大考中心官方答對率、鑑別度與選項分析，非選擇題保留官方滿分答案與評分原則。
       <button class="text-toggle intro-toggle" id="introToggle" type="button" aria-expanded="true">看更多 ▾</button>
       <span class="intro-rest"><br>
@@ -99,11 +99,19 @@
               <option value="hard">較難（答對率 &lt; 40%）</option>
             </select>
           </label>
+          <label>鑑別度
+            <select id="discriminationSelect">
+              <option value="all">不限</option>
+              <option value="high">高（≥ 0.5）</option>
+              <option value="medium">中（0.3–0.5）</option>
+              <option value="low">低（&lt; 0.3）</option>
+            </select>
+          </label>
           <label>題數
-            <input id="countInput" type="number" min="1" max="65" value="10" inputmode="numeric">
+            <input id="countInput" type="number" min="1" max="129" value="10" inputmode="numeric">
           </label>
         </div>
-        <p class="microcopy">難度只用大考中心公布的選擇題答對率；非選擇題沒有官方逐題 P／D，不會被硬塞進難度區間。</p>
+        <p class="microcopy">難度與鑑別度只採大考中心官方統計；非選擇題或未公布統計的題目，不會被硬塞進任何區間。</p>
       </div>
 
       <div class="button-row">

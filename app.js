@@ -104,19 +104,35 @@ function inDifficulty(question, value) {
   return question.pass < 0.4;
 }
 
+function discriminationValue(question) {
+  if (typeof question.disc !== "number") return null;
+  return Math.abs(question.disc) > 1 ? question.disc / 100 : question.disc;
+}
+
+function inDiscrimination(question, value) {
+  if (value === "all") return true;
+  const discrimination = discriminationValue(question);
+  if (discrimination === null) return false;
+  if (value === "high") return discrimination >= 0.5;
+  if (value === "medium") return discrimination >= 0.3 && discrimination < 0.5;
+  return discrimination < 0.3;
+}
+
 function filteredQuestions() {
   const year = $("yearSelect").value;
   const discipline = $("disciplineSelect").value;
   const objective = $("objectiveSelect").value;
   const type = $("typeSelect").value;
   const difficulty = $("difficultySelect").value;
+  const discrimination = $("discriminationSelect").value;
   return allQuestions().filter(
     (question) =>
       (year === "all" || String(question.year) === year) &&
       (discipline === "all" || question.discipline === discipline) &&
       (objective === "all" || question.objective === objective) &&
       (type === "all" || question.type === type) &&
-      inDifficulty(question, difficulty),
+      inDifficulty(question, difficulty) &&
+      inDiscrimination(question, discrimination),
   );
 }
 
@@ -155,10 +171,17 @@ function updateSummary() {
     medium: "中等",
     hard: "較難",
   };
+  const discriminationLabels = {
+    all: "鑑別度不限",
+    high: "高鑑別度",
+    medium: "中鑑別度",
+    low: "低鑑別度",
+  };
   const count = Math.min(Number($("countInput").value) || 10, matches.length);
   $("filterSummary").textContent =
     `${year} ・ ${discipline} ・ 每次 ${count} 題 ・ ${typeLabels[$("typeSelect").value]} ・ ` +
-    `${difficultyLabels[$("difficultySelect").value]} ・ 可選 ${matches.length} 題`;
+    `${difficultyLabels[$("difficultySelect").value]} ・ ` +
+    `${discriminationLabels[$("discriminationSelect").value]} ・ 可選 ${matches.length} 題`;
   $("startBtn").disabled = matches.length === 0;
 }
 
@@ -403,6 +426,7 @@ function init() {
   $("totalStat").textContent = questions.length;
   $("selectedStat").textContent = selected;
   $("constructedStat").textContent = constructed;
+  $("countInput").max = String(questions.length);
   $("groupStat").textContent = banks.reduce(
     (total, bank) => total + Object.keys(bank.groups).length,
     0,
@@ -433,6 +457,7 @@ for (const id of [
   "objectiveSelect",
   "typeSelect",
   "difficultySelect",
+  "discriminationSelect",
   "countInput",
 ]) {
   $(id).addEventListener("change", updateSummary);
@@ -444,6 +469,7 @@ $("quickBtn").addEventListener("click", () => {
   $("disciplineSelect").value = "all";
   $("typeSelect").value = "single";
   $("difficultySelect").value = "all";
+  $("discriminationSelect").value = "all";
   $("countInput").value = "10";
   updateObjectives();
   $("objectiveSelect").value = "all";
@@ -477,7 +503,10 @@ $("constructedBtn").addEventListener("click", () => {
   $("disciplineSelect").value = "all";
   $("typeSelect").value = "constructed";
   $("difficultySelect").value = "all";
-  $("countInput").value = "11";
+  $("discriminationSelect").value = "all";
+  $("countInput").value = String(
+    allQuestions().filter((question) => question.type === "constructed").length,
+  );
   updateObjectives();
   $("objectiveSelect").value = "all";
   updateSummary();

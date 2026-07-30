@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Extract 115 GSAT social official answers and statistics into reviewed JSON."""
+"""Extract GSAT social official answers and statistics into reviewed JSON."""
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 from pathlib import Path
@@ -14,6 +15,18 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = ROOT / "sources" / "115"
 OUTPUT = SOURCE_DIR / "official-metadata.json"
 CONSTRUCTED = {40, 42, 44, 46, 49, 52, 54, 56, 60, 63, 65}
+QUESTION_COUNT = 65
+
+YEAR_CONFIG = {
+    114: {
+        "questionCount": 64,
+        "constructed": {46, 49, 51, 53, 55, 56, 58, 61, 63, 64},
+    },
+    115: {
+        "questionCount": 65,
+        "constructed": {40, 42, 44, 46, 49, 52, 54, 56, 60, 63, 65},
+    },
+}
 
 
 def parse_percent(value: object) -> int | None:
@@ -36,12 +49,15 @@ def extract_answers() -> dict[int, str | None]:
     answers: dict[int, str | None] = {}
     for number_text, answer_text in re.findall(r"(?<!\d)(\d{1,2})\s+([A-D／])", text):
         number = int(number_text)
-        if 1 <= number <= 65:
+        if 1 <= number <= QUESTION_COUNT:
             answers[number] = None if answer_text == "／" else answer_text
 
-    if set(answers) != set(range(1, 66)):
-        missing = sorted(set(range(1, 66)) - set(answers))
-        raise ValueError(f"Official answer parsing did not cover 1-65; missing {missing}")
+    expected_numbers = set(range(1, QUESTION_COUNT + 1))
+    if set(answers) != expected_numbers:
+        missing = sorted(expected_numbers - set(answers))
+        raise ValueError(
+            f"Official answer parsing did not cover 1-{QUESTION_COUNT}; missing {missing}"
+        )
 
     parsed_constructed = {number for number, answer in answers.items() if answer is None}
     if parsed_constructed != CONSTRUCTED:
@@ -62,7 +78,7 @@ def extract_pass_disc() -> dict[int, dict[str, int]]:
             number = int(float(str(row[0])))
         except (TypeError, ValueError):
             continue
-        if not 1 <= number <= 65:
+        if not 1 <= number <= QUESTION_COUNT:
             continue
         pass_rate = parse_percent(row[1] if len(row) > 1 else None)
         discrimination = parse_percent(row[10] if len(row) > 10 else None)
@@ -70,7 +86,7 @@ def extract_pass_disc() -> dict[int, dict[str, int]]:
             raise ValueError(f"Question {number} is missing P or D in official workbook")
         result[number] = {"scoreRate": pass_rate, "discrimination": discrimination}
 
-    expected = set(range(1, 66)) - CONSTRUCTED
+    expected = set(range(1, QUESTION_COUNT + 1)) - CONSTRUCTED
     if set(result) != expected:
         missing = sorted(expected - set(result))
         unexpected = sorted(set(result) - expected)
@@ -111,7 +127,7 @@ def extract_option_analysis() -> dict[int, dict[str, dict[str, int]]]:
             values[label] = parsed
         result.setdefault(current_number, {})[group] = values
 
-    expected = set(range(1, 66)) - CONSTRUCTED
+    expected = set(range(1, QUESTION_COUNT + 1)) - CONSTRUCTED
     if set(result) != expected:
         missing = sorted(expected - set(result))
         unexpected = sorted(set(result) - expected)
@@ -138,10 +154,22 @@ def clean_rubric_block(block: str) -> str:
 
 def extract_rubrics() -> dict[int, str]:
     text = (SOURCE_DIR / "official-nonchoice-rubric.txt").read_text(encoding="utf-8")
-    matches = list(re.finditer(r"(?m)^第\s*(\d+)\s*題\s*$", text))
+    matches = list(re.finditer(r"(?m)^\f?第\s*(\d+)\s*題\s*$", text))
+    if len(matches) != len(CONSTRUCTED):
+        raise ValueError(
+            f"Rubric heading count mismatch: {len(matches)} != {len(CONSTRUCTED)}"
+        )
     result: dict[int, str] = {}
     for index, match in enumerate(matches):
-        number = int(match.group(1))
+        printed_number = int(match.group(1))
+        number = printed_number
+        if (
+            QUESTION_COUNT == 64
+            and printed_number == 63
+            and printed_number in result
+            and 64 in CONSTRUCTED
+        ):
+            number = 64
         end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
         result[number] = clean_rubric_block(text[match.end() : end])
     if set(result) != CONSTRUCTED:
@@ -152,13 +180,24 @@ def extract_rubrics() -> dict[int, str]:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--year", type=int, choices=sorted(YEAR_CONFIG), default=115)
+    args = parser.parse_args()
+
+    global SOURCE_DIR, OUTPUT, CONSTRUCTED, QUESTION_COUNT
+    config = YEAR_CONFIG[args.year]
+    SOURCE_DIR = ROOT / "sources" / str(args.year)
+    OUTPUT = SOURCE_DIR / "official-metadata.json"
+    CONSTRUCTED = config["constructed"]
+    QUESTION_COUNT = config["questionCount"]
+
     answers = extract_answers()
     pass_disc = extract_pass_disc()
     option_analysis = extract_option_analysis()
     rubrics = extract_rubrics()
 
     questions = {}
-    for number in range(1, 66):
+    for number in range(1, QUESTION_COUNT + 1):
         item = {"answer": answers[number]}
         if number in pass_disc:
             item.update(pass_disc[number])
@@ -169,11 +208,11 @@ def main() -> None:
         questions[str(number)] = item
 
     payload = {
-        "exam": "115學年度學科能力測驗",
+        "exam": f"{args.year}學年度學科能力測驗",
         "subject": "社會",
-        "questionCount": 65,
-        "selectedCount": 54,
-        "constructedCount": 11,
+        "questionCount": QUESTION_COUNT,
+        "selectedCount": QUESTION_COUNT - len(CONSTRUCTED),
+        "constructedCount": len(CONSTRUCTED),
         "constructedQuestionNumbers": sorted(CONSTRUCTED),
         "questions": questions,
     }

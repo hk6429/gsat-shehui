@@ -7,6 +7,7 @@
     "build:data": "./build-bank.sh",
     "build": "npm run build:data && node scripts/build-site.mjs",
     "validate:data": "node scripts/validate-bank.mjs",
-    "test": "npm run build && npm run validate:data"
+    "validate:ui": "node scripts/validate-ui.mjs",
+    "test": "npm run build && npm run validate:data && npm run validate:ui"
   }
 }
