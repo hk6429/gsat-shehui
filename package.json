@@ -1,0 +1,11 @@
+{
+  "name": "gsat-shehui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:data": "./build-bank.sh",
+    "validate:data": "node scripts/validate-bank.mjs",
+    "test": "npm run build:data && npm run validate:data"
+  }
+}

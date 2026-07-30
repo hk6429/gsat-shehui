@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>查題校對｜學測社會題庫</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div><p class="eyebrow">QUESTION CHECK</p><h1>查題校對</h1><p>輸入年份與題號，直接回看完整題目、附圖與官方資料。</p></div>
+    <nav><a href="index.html">回練習首頁</a><a href="about.html">資料來源</a></nav>
+  </header>
+  <main>
+    <section class="panel">
+      <label for="queryInput">題號
+        <input id="queryInput" placeholder="例如：115-49、115 12">
+      </label>
+      <div class="button-row">
+        <button class="button primary" id="queryBtn" type="button">查題</button>
+      </div>
+      <p class="microcopy">目前收錄 115 學年度；非選擇題會列出官方滿分答案與完整評分原則。</p>
+    </section>
+    <section id="result" aria-live="polite"></section>
+  </main>
+  <script src="data/bank.js"></script>
+  <script type="module" src="check.js"></script>
+</body>
+</html>

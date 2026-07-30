@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /check.html
+Sitemap: https://gsat-shehui.vercel.app/sitemap.xml

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>學測社會題庫｜歷屆試題分類練習</title>
+  <meta name="description" content="免費練習大學學測社會科歷屆試題，依歷史、地理、公民、能力目標、題型與官方答對率篩選，含非選擇題評分原則。">
+  <link rel="canonical" href="https://gsat-shehui.vercel.app/">
+  <meta property="og:title" content="學測社會題庫｜歷屆試題分類練習">
+  <meta property="og:description" content="學測社會科歷屆試題免費練習，含官方答案、統計與非選擇題評分原則。">
+  <meta property="og:url" content="https://gsat-shehui.vercel.app/">
+  <meta property="og:type" content="website">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要內容</a>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">GSAT SOCIAL STUDIES</p>
+      <h1>學測社會題庫</h1>
+      <p>歷史 × 地理 × 公民　官方真題分類練習</p>
+    </div>
+    <nav aria-label="主要導覽">
+      <a href="check.html">查題校對</a>
+      <a href="guide.html">使用說明</a>
+      <a href="about.html">資料來源</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="notice draft-notice" id="draftNotice" hidden>
+      目前是資料校對版，尚未正式發布；未完成逐題原卷覆核的題目不會進入正式部署。
+    </section>
+
+    <section class="intro panel">
+      <div>
+        <p class="eyebrow">115 學年度首批</p>
+        <h2>先讀材料，再判斷證據</h2>
+        <p>從最新一回學測社會開始，選擇題附大考中心官方答對率、鑑別度與選項分析；非選擇題保留官方滿分參考答案與評分原則。</p>
+      </div>
+      <dl class="stats" aria-label="題庫統計">
+        <div><dt>題數</dt><dd id="totalStat">—</dd></div>
+        <div><dt>選擇題</dt><dd id="selectedStat">—</dd></div>
+        <div><dt>非選擇題</dt><dd id="constructedStat">—</dd></div>
+        <div><dt>題組</dt><dd id="groupStat">—</dd></div>
+      </dl>
+    </section>
+
+    <section class="panel controls" aria-labelledby="filterTitle">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">BUILD A PRACTICE SET</p>
+          <h2 id="filterTitle">組一份練習</h2>
+        </div>
+        <button class="button secondary" id="quickBtn" type="button">快速練 10 題</button>
+      </div>
+
+      <div class="filter-grid">
+        <label>年份
+          <select id="yearSelect"><option value="all">全部年份</option></select>
+        </label>
+        <label>學科
+          <select id="disciplineSelect">
+            <option value="all">全部學科</option>
+            <option value="history">歷史</option>
+            <option value="geography">地理</option>
+            <option value="civics">公民與社會</option>
+            <option value="integrated">跨科整合</option>
+          </select>
+        </label>
+        <label>能力目標
+          <select id="objectiveSelect"><option value="all">全部能力目標</option></select>
+        </label>
+        <label>題型
+          <select id="typeSelect">
+            <option value="single">選擇題</option>
+            <option value="constructed">非選擇題</option>
+            <option value="all">全部題型</option>
+          </select>
+        </label>
+        <label>難度
+          <select id="difficultySelect">
+            <option value="all">不限</option>
+            <option value="easy">較簡單（答對率 ≥ 70%）</option>
+            <option value="medium">中等（40%–69%）</option>
+            <option value="hard">較難（答對率 &lt; 40%）</option>
+          </select>
+        </label>
+        <label>題數
+          <input id="countInput" type="number" min="1" max="65" value="10" inputmode="numeric">
+        </label>
+      </div>
+      <p class="filter-summary" id="filterSummary" aria-live="polite">正在讀取題庫……</p>
+      <div class="button-row">
+        <button class="button primary" id="startBtn" type="button">開始練習</button>
+        <button class="button secondary" id="wrongBtn" type="button">練錯題本</button>
+        <button class="button ghost" id="resetBtn" type="button">清除本次作答</button>
+      </div>
+      <p class="microcopy">難度只用大考中心公布的選擇題答對率；非選擇題沒有官方逐題 P／D，不會被硬塞進難度區間。</p>
+    </section>
+
+    <section id="session" class="session" hidden aria-labelledby="sessionTitle">
+      <div class="session-bar">
+        <div>
+          <p class="eyebrow">PRACTICE SESSION</p>
+          <h2 id="sessionTitle">本次練習</h2>
+        </div>
+        <p id="sessionScore" aria-live="polite">尚未作答</p>
+      </div>
+      <div id="questionList"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>題目、答案與統計資料來源：財團法人大學入學考試中心基金會。</p>
+    <p><a href="privacy.html">隱私權</a> · <a href="about.html">資料與著作權</a></p>
+  </footer>
+
+  <div id="announcer" class="sr-only" aria-live="polite"></div>
+  <script src="data/bank.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

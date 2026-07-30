@@ -1,0 +1,14 @@
+{
+  "name": "學測社會題庫－歷屆試題分類練習",
+  "short_name": "學測社會",
+  "description": "大學學測社會科歷屆試題分類練習",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f2ea",
+  "theme_color": "#26333e",
+  "lang": "zh-Hant-TW",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

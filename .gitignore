@@ -1,0 +1,6 @@
+.DS_Store
+.vercel/
+.netlify/
+node_modules/
+sources/**/*.png
+sources/**/*-page-*.ppm
