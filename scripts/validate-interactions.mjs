@@ -48,7 +48,10 @@ change($("difficultySortCheckbox"));
 click($("startBtn"));
 const expectedEasy = window.BANK.flatMap((bank) =>
   bank.questions
-    .filter((question) => question.type === "single")
+    .filter(
+      (question) =>
+        question.type !== "constructed" && typeof question.pass === "number",
+    )
     .map((question) => ({ ...question, year: bank.year })),
 )
   .sort((a, b) => b.pass - a.pass || b.year - a.year || a.no - b.no)
@@ -75,6 +78,26 @@ assert(timedCard.querySelector(".feedback").hidden, "計時模式作答後不應
 assert(!$("submitSessionBtn").hidden && !$("timerText").hidden, "計時模式缺少交卷或倒數");
 click($("submitSessionBtn"));
 assert(!timedCard.querySelector(".feedback").hidden, "計時模式交卷後未顯示結果");
+
+// 90 年舊制複選題：可同時選取多個答案，確認後依官方答案 BDE 判分。
+click($("resetBtn"));
+$("yearSelect").value = "90";
+change($("yearSelect"));
+$("timedCheckbox").checked = false;
+$("countInput").value = "80";
+click($("startBtn"));
+const multipleCard = [...window.document.querySelectorAll(".question-card")].find(
+  (card) => card.querySelector(".question-stem b")?.textContent === "90－51.",
+);
+assert(multipleCard, "90 年第 51 題複選題未載入");
+for (const key of ["B", "D", "E"]) {
+  click(multipleCard.querySelector(`.option[data-key="${key}"]`));
+}
+click(multipleCard.querySelector(".confirm-multiple"));
+assert(
+  multipleCard.querySelector(".feedback").classList.contains("correct"),
+  "90 年複選題未依官方 BDE 答案判分",
+);
 
 // 整回模考：指定 114 年後須載入完整 64 題，並使用 110 分鐘倒數。
 click($("resetBtn"));
@@ -110,6 +133,7 @@ console.log(
     {
       difficultySort: "VERIFIED",
       timedDeferredGrading: "VERIFIED",
+      multipleChoice90: "BDE / VERIFIED",
       mockExam114: "64 questions / 110 minutes",
       dueReview: "VERIFIED",
       teacherPaper: "54 selected questions / answer key",

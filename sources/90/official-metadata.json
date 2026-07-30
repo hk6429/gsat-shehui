@@ -1,0 +1,251 @@
+{
+  "exam": "90學年度學科能力測驗",
+  "subject": "社會",
+  "questionCount": 80,
+  "selectedCount": 80,
+  "constructedCount": 0,
+  "constructedQuestionNumbers": [],
+  "statisticsAvailable": false,
+  "questions": {
+    "1": {
+      "answer": "D"
+    },
+    "2": {
+      "answer": "B"
+    },
+    "3": {
+      "answer": "E"
+    },
+    "4": {
+      "answer": "C"
+    },
+    "5": {
+      "answer": "D"
+    },
+    "6": {
+      "answer": "B"
+    },
+    "7": {
+      "answer": "B"
+    },
+    "8": {
+      "answer": "A"
+    },
+    "9": {
+      "answer": "A"
+    },
+    "10": {
+      "answer": "B"
+    },
+    "11": {
+      "answer": "D"
+    },
+    "12": {
+      "answer": "B"
+    },
+    "13": {
+      "answer": "C"
+    },
+    "14": {
+      "answer": "B"
+    },
+    "15": {
+      "answer": "D"
+    },
+    "16": {
+      "answer": "D"
+    },
+    "17": {
+      "answer": "A"
+    },
+    "18": {
+      "answer": "C"
+    },
+    "19": {
+      "answer": "B"
+    },
+    "20": {
+      "answer": "B"
+    },
+    "21": {
+      "answer": "A"
+    },
+    "22": {
+      "answer": "B"
+    },
+    "23": {
+      "answer": "D"
+    },
+    "24": {
+      "answer": "A"
+    },
+    "25": {
+      "answer": "C"
+    },
+    "26": {
+      "answer": "D"
+    },
+    "27": {
+      "answer": "A"
+    },
+    "28": {
+      "answer": "A"
+    },
+    "29": {
+      "answer": "B"
+    },
+    "30": {
+      "answer": "C"
+    },
+    "31": {
+      "answer": "B"
+    },
+    "32": {
+      "answer": "A"
+    },
+    "33": {
+      "answer": "A"
+    },
+    "34": {
+      "answer": "D"
+    },
+    "35": {
+      "answer": "B"
+    },
+    "36": {
+      "answer": "A"
+    },
+    "37": {
+      "answer": "B"
+    },
+    "38": {
+      "answer": "A"
+    },
+    "39": {
+      "answer": "D"
+    },
+    "40": {
+      "answer": "C"
+    },
+    "41": {
+      "answer": "D"
+    },
+    "42": {
+      "answer": "C"
+    },
+    "43": {
+      "answer": "A"
+    },
+    "44": {
+      "answer": "D"
+    },
+    "45": {
+      "answer": "C"
+    },
+    "46": {
+      "answer": "B"
+    },
+    "47": {
+      "answer": "C"
+    },
+    "48": {
+      "answer": "D"
+    },
+    "49": {
+      "answer": "C"
+    },
+    "50": {
+      "answer": "D"
+    },
+    "51": {
+      "answer": "BDE"
+    },
+    "52": {
+      "answer": "ACDE"
+    },
+    "53": {
+      "answer": "BE"
+    },
+    "54": {
+      "answer": "AB"
+    },
+    "55": {
+      "answer": "ABCD"
+    },
+    "56": {
+      "answer": "ABD"
+    },
+    "57": {
+      "answer": "ABD"
+    },
+    "58": {
+      "answer": "CD"
+    },
+    "59": {
+      "answer": "AD"
+    },
+    "60": {
+      "answer": "DE"
+    },
+    "61": {
+      "answer": "B"
+    },
+    "62": {
+      "answer": "D"
+    },
+    "63": {
+      "answer": "A"
+    },
+    "64": {
+      "answer": "E"
+    },
+    "65": {
+      "answer": "A"
+    },
+    "66": {
+      "answer": "D"
+    },
+    "67": {
+      "answer": "E"
+    },
+    "68": {
+      "answer": "D"
+    },
+    "69": {
+      "answer": "C"
+    },
+    "70": {
+      "answer": "C"
+    },
+    "71": {
+      "answer": "E"
+    },
+    "72": {
+      "answer": "C"
+    },
+    "73": {
+      "answer": "A"
+    },
+    "74": {
+      "answer": "B"
+    },
+    "75": {
+      "answer": "C"
+    },
+    "76": {
+      "answer": "A"
+    },
+    "77": {
+      "answer": "E"
+    },
+    "78": {
+      "answer": "E"
+    },
+    "79": {
+      "answer": "C"
+    },
+    "80": {
+      "answer": "A"
+    }
+  }
+}

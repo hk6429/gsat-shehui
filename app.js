@@ -137,7 +137,12 @@ function filteredQuestions() {
       (year === "all" || String(question.year) === year) &&
       (discipline === "all" || question.discipline === discipline) &&
       (objective === "all" || question.objective === objective) &&
-      (type === "all" || question.type === type) &&
+      (
+        type === "all" ||
+        (type === "single"
+          ? question.type !== "constructed"
+          : question.type === "constructed")
+      ) &&
       inDifficulty(question, difficulty) &&
       inDiscrimination(question, discrimination),
   );
@@ -264,7 +269,9 @@ function updateWrongCount() {
 }
 
 function saveHistoryIfComplete() {
-  const selectedCount = currentQuestions.filter((question) => question.type === "single").length;
+  const selectedCount = currentQuestions.filter(
+    (question) => question.type !== "constructed",
+  ).length;
   if (sessionSaved || !selectedCount || answered !== selectedCount) return;
   const history = safeRead(historyKey, []);
   history.push({
@@ -313,16 +320,25 @@ function renderMaterial(question) {
 }
 
 function renderTags(question) {
+  const typeLabel =
+    question.type === "constructed"
+      ? "非選擇題"
+      : question.type === "multiple"
+        ? "複選題"
+        : "單選題";
   return [
     `<span class="tag ${question.discipline}">${escapeHtml(disciplineLabels[question.discipline])}</span>`,
     `<span class="tag">${escapeHtml(objectiveLabels[question.objective] ?? question.objective)}</span>`,
     ...question.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`),
-    `<span class="tag">${question.type === "constructed" ? "非選擇題" : "單選題"}</span>`,
+    `<span class="tag">${typeLabel}</span>`,
   ].join("");
 }
 
 function optionAnalysisTable(question) {
   if (!question.optionStats) return "";
+  const optionLabels = Object.keys(question.optionStats.T).filter(
+    (label) => label !== "未答",
+  );
   const rows = [
     ["全體", question.optionStats.T],
     ["高分組", question.optionStats.H],
@@ -330,11 +346,11 @@ function optionAnalysisTable(question) {
   ];
   return `
     <table class="analysis-table">
-      <thead><tr><th>組別</th><th>未答</th><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead>
+      <thead><tr><th>組別</th><th>未答</th>${optionLabels.map((label) => `<th>${label}</th>`).join("")}</tr></thead>
       <tbody>${rows
         .map(
           ([label, values]) =>
-            `<tr><th>${label}</th><td>${values["未答"]}%</td><td>${values.A}%</td><td>${values.B}%</td><td>${values.C}%</td><td>${values.D}%</td></tr>`,
+            `<tr><th>${label}</th><td>${values["未答"]}%</td>${optionLabels.map((option) => `<td>${values[option]}%</td>`).join("")}</tr>`,
         )
         .join("")}</tbody>
     </table>`;
@@ -356,15 +372,16 @@ function selectedQuestionHtml(question, index) {
           )
           .join("")}
       </div>
+      ${question.type === "multiple" ? '<button class="button secondary confirm-multiple" type="button">確認複選答案</button>' : ""}
       <div class="feedback" hidden aria-live="polite"></div>
-      <details class="official-stats">
+      ${typeof question.pass === "number" ? `<details class="official-stats">
         <summary>查看官方統計</summary>
         <div class="stat-grid">
           <div><b>答對率</b><br>${Math.round(question.pass * 100)}%</div>
           <div><b>鑑別度</b><br>${question.disc}</div>
         </div>
         ${optionAnalysisTable(question)}
-      </details>
+      </details>` : '<p class="source-warning">本年度大考中心未公布逐題答對率、鑑別度與選項分析。</p>'}
       ${question.sourceReview === "pending" ? '<p class="source-warning">此題仍在逐字原卷覆核佇列，尚未進入正式版。</p>' : ""}
     </article>`;
 }
@@ -423,22 +440,35 @@ function startTimer(seconds) {
 function revealSelectedResult(card, question, chosen) {
   if (card.dataset.answered === "true") return;
   card.dataset.answered = "true";
-  const isCorrect = chosen === question.answer;
+  const accepted = question.acceptedAnswers ?? [question.answer];
+  const isCorrect = accepted.includes(chosen);
+  const officialAnswer = question.officialAnswerNote
+    ? question.officialAnswerNote
+    : `正確答案是 ${accepted.join(" 或 ")}。`;
   card.querySelectorAll(".option").forEach((option) => {
     option.disabled = true;
     option.classList.remove("selected");
-    if (option.dataset.key === question.answer) option.classList.add("correct");
+    if (
+      question.type === "multiple"
+        ? question.answer.includes(option.dataset.key)
+        : accepted.includes(option.dataset.key)
+    ) {
+      option.classList.add("correct");
+    }
   });
-  const chosenButton = card.querySelector(`.option[data-key="${chosen}"]`);
-  if (!isCorrect && chosenButton) chosenButton.classList.add("wrong");
+  if (!isCorrect) {
+    card.querySelectorAll(".option").forEach((option) => {
+      if (chosen.includes(option.dataset.key)) option.classList.add("wrong");
+    });
+  }
   const feedback = card.querySelector(".feedback");
   feedback.hidden = false;
   feedback.classList.add(isCorrect ? "correct" : "wrong");
   const resultText = isCorrect
-    ? `✓ 答對了。正確答案是 ${question.answer}。`
+    ? `✓ 答對了。${officialAnswer}`
     : chosen
-      ? `✗ 這題選了 ${chosen}，正確答案是 ${question.answer}。`
-      : `✗ 本題未作答，正確答案是 ${question.answer}。`;
+      ? `✗ 這題選了 ${chosen}，${officialAnswer}`
+      : `✗ 本題未作答，${officialAnswer}`;
   feedback.innerHTML =
     `${resultText}<p class="explanation"><b>解析：</b>${escapeHtml(question.explain)}</p>`;
   answered += 1;
@@ -485,6 +515,22 @@ function bindQuestionEvents() {
       button.addEventListener("click", () => {
         if (card.dataset.answered === "true") return;
         const chosen = button.dataset.key;
+        if (question.type === "multiple") {
+          const id = questionId(question);
+          const selected = new Set((pendingAnswers[id] || "").split("").filter(Boolean));
+          if (selected.has(chosen)) selected.delete(chosen);
+          else selected.add(chosen);
+          pendingAnswers[id] = [...selected].sort().join("");
+          card.querySelectorAll(".option").forEach((option) =>
+            option.classList.toggle(
+              "selected",
+              pendingAnswers[id].includes(option.dataset.key),
+            ),
+          );
+          $("announcer").textContent =
+            `第 ${question.no} 題目前選擇 ${pendingAnswers[id] || "未作答"}`;
+          return;
+        }
         if (["timed", "mock"].includes(sessionMode)) {
           pendingAnswers[questionId(question)] = chosen;
           card.querySelectorAll(".option").forEach((option) =>
@@ -498,11 +544,25 @@ function bindQuestionEvents() {
         updateScore();
         saveHistoryIfComplete();
         $("announcer").textContent =
-          chosen === question.answer
+          (question.acceptedAnswers ?? [question.answer]).includes(chosen)
             ? `第 ${question.no} 題答對`
-            : `第 ${question.no} 題答錯，正確答案 ${question.answer}`;
+            : `第 ${question.no} 題答錯，正確答案 ${(question.acceptedAnswers ?? [question.answer]).join(" 或 ")}`;
       });
     });
+    const confirmMultiple = card.querySelector(".confirm-multiple");
+    if (confirmMultiple) {
+      if (["timed", "mock"].includes(sessionMode)) {
+        confirmMultiple.hidden = true;
+      } else {
+        confirmMultiple.addEventListener("click", () => {
+          const chosen = pendingAnswers[questionId(question)] || "";
+          revealSelectedResult(card, question, chosen);
+          updateWrongCount();
+          updateScore();
+          saveHistoryIfComplete();
+        });
+      }
+    }
   });
 }
 
@@ -560,7 +620,8 @@ function startWrongBook(dueOnly = false) {
   const wrongBook = loadWrongBook();
   const ids = new Set(dueOnly ? dueWrongIds(wrongBook) : Object.keys(wrongBook));
   const matches = allQuestions().filter(
-    (question) => question.type === "single" && ids.has(questionId(question)),
+    (question) =>
+      question.type !== "constructed" && ids.has(questionId(question)),
   );
   if (!matches.length) {
     const message = dueOnly
@@ -676,7 +737,7 @@ function paperQuestionHtml(question, number) {
     ? `<div><b>${escapeHtml(question.groupData.title)}</b><p>${escapeHtml(question.groupData.passage)}</p>${question.groupData.image ? `<img src="${escapeHtml(question.groupData.image)}" alt="">` : ""}</div>`
     : "";
   const options =
-    question.type === "single"
+    question.type !== "constructed"
       ? `<ol class="print-options" type="A">${Object.values(question.options)
           .map((option) => `<li>${escapeHtml(option)}</li>`)
           .join("")}</ol>`
@@ -700,7 +761,7 @@ function printPaper() {
   const answers = questions
     .map(
       (question) =>
-        `<li>${question.type === "single" ? escapeHtml(question.answer) : "依官方評分原則評閱"}</li>`,
+        `<li>${question.type === "constructed" ? "依官方評分原則評閱" : escapeHtml(question.officialAnswerNote ?? question.answer)}</li>`,
     )
     .join("");
   $("paperPrintArea").innerHTML = `
@@ -725,7 +786,9 @@ function init() {
     return;
   }
   const questions = allQuestions();
-  const selected = questions.filter((question) => question.type === "single").length;
+  const selected = questions.filter(
+    (question) => question.type !== "constructed",
+  ).length;
   const constructed = questions.length - selected;
   $("totalStat").textContent = questions.length;
   $("selectedStat").textContent = selected;

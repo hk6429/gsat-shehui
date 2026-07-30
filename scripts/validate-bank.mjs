@@ -7,7 +7,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dataDir = path.join(root, "data");
 const sourceFiles = fs
   .readdirSync(dataDir)
-  .filter((name) => /^g\d{3}\.js$/.test(name))
+  .filter((name) => /^g\d{2,3}\.js$/.test(name))
   .sort();
 const context = { window: {} };
 
@@ -38,7 +38,8 @@ for (const bank of banks) {
     throw new Error(`Duplicate bank year ${bank.year}`);
   }
   seenYears.add(bank.year);
-  if (bank.era !== "學測" || bank.durationMinutes !== 110) {
+  const expectedDuration = bank.year >= 111 ? 110 : 100;
+  if (bank.era !== "學測" || bank.durationMinutes !== expectedDuration) {
     throw new Error(`${bank.year} bank identity or duration is incorrect`);
   }
 
@@ -141,38 +142,65 @@ for (const bank of banks) {
       }
     } else {
       selectedCount += 1;
-      if (
-        question.type !== "single" ||
-        !/^[A-D]$/.test(question.answer) ||
-        question.answer !== official.answer
-      ) {
+      const optionKeys = Object.keys(question.options);
+      const expectedKeys =
+        bank.year === 90 && (question.no <= 12 || question.no >= 51)
+          ? ["A", "B", "C", "D", "E"]
+          : ["A", "B", "C", "D"];
+      let answerMatches = false;
+      if (official.answer === null) {
+        answerMatches =
+          question.type === "single" &&
+          JSON.stringify(question.acceptedAnswers) === JSON.stringify(expectedKeys);
+      } else if (Array.isArray(official.answer)) {
+        answerMatches =
+          question.type === "single" &&
+          question.answer === official.answer[0] &&
+          JSON.stringify(question.acceptedAnswers) ===
+            JSON.stringify(official.answer);
+      } else if (official.answer.length > 1) {
+        answerMatches =
+          question.type === "multiple" && question.answer === official.answer;
+      } else {
+        answerMatches =
+          question.type === "single" && question.answer === official.answer;
+      }
+      if (!answerMatches) {
         throw new Error(
           `${bank.year}-${question.no} selected-response answer mismatch`,
         );
       }
-      if (
-        JSON.stringify(Object.keys(question.options)) !==
-        JSON.stringify(["A", "B", "C", "D"])
-      ) {
+      if (JSON.stringify(optionKeys) !== JSON.stringify(expectedKeys)) {
         throw new Error(
-          `${bank.year}-${question.no} must contain A-D in original order`,
+          `${bank.year}-${question.no} has incorrect option order`,
         );
       }
-      if (
-        question.pass !== official.scoreRate / 100 ||
-        question.disc !== official.discrimination
-      ) {
-        throw new Error(
-          `${bank.year}-${question.no} official P/D statistics mismatch`,
-        );
-      }
-      if (
-        JSON.stringify(question.optionStats) !==
-        JSON.stringify(official.optionAnalysis)
-      ) {
-        throw new Error(
-          `${bank.year}-${question.no} official option analysis mismatch`,
-        );
+      if (metadata.statisticsAvailable === false) {
+        if (
+          question.pass !== undefined ||
+          question.disc !== undefined ||
+          question.optionStats !== undefined ||
+          question.statisticsAvailable !== false
+        ) {
+          throw new Error(`${bank.year}-${question.no} invents unavailable statistics`);
+        }
+      } else {
+        if (
+          question.pass !== official.scoreRate / 100 ||
+          question.disc !== official.discrimination
+        ) {
+          throw new Error(
+            `${bank.year}-${question.no} official P/D statistics mismatch`,
+          );
+        }
+        if (
+          JSON.stringify(question.optionStats) !==
+          JSON.stringify(official.optionAnalysis)
+        ) {
+          throw new Error(
+            `${bank.year}-${question.no} official option analysis mismatch`,
+          );
+        }
       }
       if (typeof question.explain !== "string" || !question.explain.trim()) {
         throw new Error(

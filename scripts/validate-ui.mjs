@@ -66,24 +66,27 @@ for (const expected of [
 const context = { window: {} };
 vm.runInNewContext(bankSource, context, { filename: "data/bank.js" });
 const selected = context.window.BANK.flatMap((bank) => bank.questions).filter(
-  (question) => question.type === "single",
+  (question) => question.type !== "constructed",
 );
-const values = selected.map((question) =>
-  Math.abs(question.disc) > 1 ? question.disc / 100 : question.disc,
-);
+const values = selected
+  .filter((question) => typeof question.disc === "number")
+  .map((question) =>
+    Math.abs(question.disc) > 1 ? question.disc / 100 : question.disc,
+  );
 const counts = {
   high: values.filter((value) => value >= 0.5).length,
   medium: values.filter((value) => value >= 0.3 && value < 0.5).length,
   low: values.filter((value) => value < 0.3).length,
 };
-if (Object.values(counts).reduce((sum, count) => sum + count, 0) !== selected.length) {
-  throw new Error("Discrimination ranges do not cover every selected question");
+if (Object.values(counts).reduce((sum, count) => sum + count, 0) !== values.length) {
+  throw new Error("Discrimination ranges do not cover every question with official statistics");
 }
 
 console.log(
   JSON.stringify(
     {
       selectedQuestions: selected.length,
+      questionsWithOfficialDiscrimination: values.length,
       discriminationRanges: counts,
       homepageFeatureContracts: 20,
       status: "VERIFIED",
