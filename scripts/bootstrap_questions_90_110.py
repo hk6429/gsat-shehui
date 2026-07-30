@@ -180,6 +180,12 @@ def build_year(year: int) -> None:
     metadata = json.loads(
         (source_dir / "official-metadata.json").read_text(encoding="utf-8")
     )
+    explanations_path = ROOT / "data" / f"explanations-{year}.json"
+    explanations = (
+        json.loads(explanations_path.read_text(encoding="utf-8"))
+        if explanations_path.exists()
+        else {}
+    )
     count = question_count(year)
     starts = question_starts(raw, year)
     groups: dict[str, dict[str, str]] = {}
@@ -305,9 +311,12 @@ def build_year(year: int) -> None:
             if len(canonical) > 1
             else canonical
         )
-        item["explain"] = (
-            f"官方答案為 {answer_label}。作答時應逐項對照題幹的時間、空間與因果條件；"
-            "本題文字、選項與答案均依大考中心公布資料整理。"
+        item["explain"] = explanations.get(
+            str(number),
+            (
+                f"官方答案為 {answer_label}。作答時應逐項對照題幹的時間、空間與因果條件；"
+                "本題文字、選項與答案均依大考中心公布資料整理。"
+            ),
         )
         question_source = stem + " " + " ".join(options.values())
         if has_visual_options or VISUAL_RE.search(question_source):

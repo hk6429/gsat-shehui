@@ -195,6 +195,12 @@ def main() -> None:
     metadata = json.loads(
         (source_dir / "official-metadata.json").read_text(encoding="utf-8")
     )
+    explanations_path = ROOT / "data" / f"explanations-{year}.json"
+    explanations = (
+        json.loads(explanations_path.read_text(encoding="utf-8"))
+        if explanations_path.exists()
+        else {}
+    )
     count = config["questionCount"]
     raw_matches = first_question_matches(raw, count)
     docx_matches = first_question_matches(docx, count)
@@ -315,10 +321,13 @@ def main() -> None:
                     "stem": stem,
                     "options": options,
                     "optionStats": official["optionAnalysis"],
-                    "explain": (
-                        f"答案為 {answer}。題幹的時間、空間與因果條件最符合"
-                        f"「{answer_text}」。作答時應逐項對照材料線索，"
-                        "避免只憑單一關鍵詞判斷。"
+                    "explain": explanations.get(
+                        str(number),
+                        (
+                            f"答案為 {answer}。題幹的時間、空間與因果條件最符合"
+                            f"「{answer_text}」。作答時應逐項對照材料線索，"
+                            "避免只憑單一關鍵詞判斷。"
+                        ),
                     ),
                 }
             )

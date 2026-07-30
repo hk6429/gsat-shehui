@@ -7,6 +7,7 @@
     "build:data": "./build-bank.sh",
     "build": "npm run build:data && node scripts/build-site.mjs",
     "validate:data": "node scripts/validate-bank.mjs",
+    "validate:explanations": "node scripts/validate-explanations.mjs",
     "validate:ui": "node scripts/validate-ui.mjs",
     "validate:interactions": "node scripts/validate-interactions.mjs",
     "test": "npm run build && npm run validate:data && npm run validate:ui && npm run validate:interactions"
