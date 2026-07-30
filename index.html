@@ -111,16 +111,24 @@
             <input id="countInput" type="number" min="1" max="129" value="10" inputmode="numeric">
           </label>
         </div>
+        <div class="filter-options" role="group" aria-label="出題方式">
+          <label><input id="shuffleCheckbox" type="checkbox" checked> 隨機出題</label>
+          <label><input id="timedCheckbox" type="checkbox"> 計時模式（約每題 100 秒）</label>
+          <label><input id="difficultySortCheckbox" type="checkbox"> 由易到難排序</label>
+        </div>
         <p class="microcopy">難度與鑑別度只採大考中心官方統計；非選擇題或未公布統計的題目，不會被硬塞進任何區間。</p>
       </div>
 
       <div class="button-row">
         <button class="button outline" id="startBtn" type="button">開始練習</button>
+        <button class="button primary" id="reviewBtn" type="button" hidden>今日該複習 <b>0</b> 題</button>
         <button class="button secondary" id="wrongBtn" type="button">錯題本（<span id="wrongCount">0</span>）</button>
         <button class="button secondary" id="historyBtn" type="button">學習歷程</button>
         <button class="text-toggle" id="moreToggle" type="button" aria-expanded="false">更多功能 ▾</button>
       </div>
       <div class="button-row more-row" id="moreRow" hidden>
+        <button class="button secondary" id="mockBtn" type="button">整回模考（需先選年份）</button>
+        <button class="button secondary" id="paperBtn" type="button">出卷模式（老師）</button>
         <button class="button secondary" id="constructedBtn" type="button">非選擇題練習</button>
         <button class="button ghost" id="resetBtn" type="button">清除本次作答</button>
       </div>
@@ -132,16 +140,43 @@
         <button class="text-toggle" id="historyCloseBtn" type="button">關閉</button>
       </div>
       <p class="microcopy">完成一回選擇題練習後，成績會保存在這台裝置，最多保留最近 30 回。</p>
+      <div class="button-row compact-row">
+        <button class="button secondary" id="exportBtn" type="button">匯出紀錄</button>
+        <button class="button secondary" id="importBtn" type="button">匯入紀錄</button>
+        <button class="button ghost danger" id="clearRecordsBtn" type="button">清除本機紀錄</button>
+        <input id="importFile" type="file" accept="application/json" hidden>
+      </div>
       <div id="historyList"></div>
+    </section>
+
+    <section class="panel paper-panel no-print" id="paperPanel" hidden>
+      <div class="tool-row">
+        <h2>出卷模式（老師）</h2>
+        <button class="text-toggle" id="paperCloseBtn" type="button">關閉</button>
+      </div>
+      <p class="microcopy">依目前篩選條件列出題目；勾選後可直接列印學生題卷與教師答案。</p>
+      <div class="button-row compact-row">
+        <button class="button secondary" id="paperSelectAllBtn" type="button">全選</button>
+        <button class="button secondary" id="paperSelectNoneBtn" type="button">全不選</button>
+        <button class="button primary" id="paperPrintBtn" type="button">列印題卷</button>
+        <span id="paperCount" aria-live="polite">已選 0 題</span>
+      </div>
+      <div class="paper-question-list" id="paperQuestionList"></div>
     </section>
 
     <section id="session" class="session" hidden aria-labelledby="sessionTitle">
       <div class="session-bar">
         <h2 id="sessionTitle">本次練習</h2>
-        <p id="sessionScore" aria-live="polite">尚未作答</p>
+        <div class="session-status">
+          <p id="timerText" hidden>剩餘時間 00:00</p>
+          <p id="sessionScore" aria-live="polite">尚未作答</p>
+          <button class="button primary submit-session" id="submitSessionBtn" type="button" hidden>交卷</button>
+        </div>
       </div>
       <div id="questionList"></div>
     </section>
+
+    <section id="paperPrintArea" class="print-only" aria-label="列印題卷"></section>
   </main>
 
   <footer class="site-footer">

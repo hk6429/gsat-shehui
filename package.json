@@ -8,6 +8,10 @@
     "build": "npm run build:data && node scripts/build-site.mjs",
     "validate:data": "node scripts/validate-bank.mjs",
     "validate:ui": "node scripts/validate-ui.mjs",
-    "test": "npm run build && npm run validate:data && npm run validate:ui"
+    "validate:interactions": "node scripts/validate-interactions.mjs",
+    "test": "npm run build && npm run validate:data && npm run validate:ui && npm run validate:interactions"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1"
   }
 }

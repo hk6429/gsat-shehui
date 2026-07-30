@@ -29,6 +29,40 @@ for (const expected of [
   }
 }
 
+for (const expected of [
+  'id="shuffleCheckbox"',
+  'id="timedCheckbox"',
+  'id="difficultySortCheckbox"',
+  'id="reviewBtn"',
+  'id="mockBtn"',
+  'id="paperBtn"',
+  'id="exportBtn"',
+  'id="importBtn"',
+  'id="submitSessionBtn"',
+  'id="paperPrintArea"',
+]) {
+  if (!index.includes(expected)) {
+    throw new Error(`Homepage lacks reference-site feature contract: ${expected}`);
+  }
+}
+
+for (const expected of [
+  "function dueWrongIds(",
+  "function recordWrongBookResult(",
+  "function startTimer(",
+  "function submitDeferredSession(",
+  "function orderedQuestions(",
+  "function startMock(",
+  "function exportRecords(",
+  "async function importRecords(",
+  "function renderPaperPicker(",
+  "function printPaper(",
+]) {
+  if (!app.includes(expected)) {
+    throw new Error(`App lacks reference-site behavior contract: ${expected}`);
+  }
+}
+
 const context = { window: {} };
 vm.runInNewContext(bankSource, context, { filename: "data/bank.js" });
 const selected = context.window.BANK.flatMap((bank) => bank.questions).filter(
@@ -51,6 +85,7 @@ console.log(
     {
       selectedQuestions: selected.length,
       discriminationRanges: counts,
+      homepageFeatureContracts: 20,
       status: "VERIFIED",
     },
     null,

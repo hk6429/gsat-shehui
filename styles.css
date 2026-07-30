@@ -251,6 +251,27 @@ select, input, textarea {
   color: var(--muted);
   font-size: .8rem;
 }
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.filter-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  color: var(--ink);
+  font-weight: 400;
+}
+.filter-options input {
+  width: 18px;
+  min-height: 18px;
+  accent-color: var(--seal);
+}
 .button-row {
   display: flex;
   flex-wrap: wrap;
@@ -274,6 +295,8 @@ select, input, textarea {
 .button.primary { color: #fff9ec; background: var(--seal); border-color: var(--seal); }
 .button.outline { color: var(--seal); background: transparent; border: 1.5px solid var(--seal); font-weight: 700; }
 .button.ghost { color: var(--muted); background: transparent; border-color: var(--line); }
+.button.danger { color: var(--wrong); border-color: var(--wrong); }
+.compact-row .button { padding: 8px 14px; font-size: .88rem; }
 .quick-button {
   padding: 14px 30px;
   font-size: 1.1rem;
@@ -304,6 +327,31 @@ select, input, textarea {
 }
 .history-bar i { display: block; height: 100%; background: var(--correct); }
 .history-empty { color: var(--muted); font-size: .86rem; }
+.paper-panel { margin-top: 16px; }
+.paper-question-list {
+  display: grid;
+  gap: 7px;
+  max-height: 440px;
+  padding: 10px;
+  margin-top: 12px;
+  overflow-y: auto;
+  background: #eef2fb;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.paper-question-list label {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: 8px;
+  align-items: start;
+  padding: 8px;
+  color: var(--ink);
+  background: var(--card);
+  border-radius: 6px;
+  font-weight: 400;
+}
+.paper-question-list input { width: 18px; min-height: 18px; }
+.paper-question-list small { color: var(--muted); white-space: nowrap; }
 
 .session { margin-top: 28px; }
 .session-bar {
@@ -317,6 +365,21 @@ select, input, textarea {
   backdrop-filter: blur(8px);
 }
 .session-bar p { margin: 0; font-weight: 700; }
+.session-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 14px;
+}
+.session-status #timerText { color: var(--wrong); }
+.submit-session { padding: 7px 16px; font-size: .88rem; }
+.option.selected {
+  color: var(--seal);
+  background: #dce6f8;
+  border: 2px solid var(--seal);
+}
+.print-only { display: none; }
 .question-card { margin-bottom: 14px; }
 .question-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
 .tag {
@@ -429,6 +492,9 @@ select, input, textarea {
   .tool-row, .session-bar { align-items: flex-start; }
   .history-row { grid-template-columns: 7em 1fr; }
   .history-row strong { grid-column: 2; }
+  .session-status { justify-content: flex-start; }
+  .paper-question-list label { grid-template-columns: 22px 1fr; }
+  .paper-question-list small { grid-column: 2; }
   .site-header { align-items: start; flex-direction: column; }
   .site-footer { padding-bottom: 92px; }
 }
@@ -442,4 +508,16 @@ select, input, textarea {
   body { color: black; background: white; }
   main { width: 100%; margin: 0; padding: 0; }
   .question-card { break-inside: avoid; border-radius: 0; box-shadow: none; }
+  body.printing-paper > :not(main),
+  body.printing-paper main > :not(#paperPrintArea) { display: none !important; }
+  body.printing-paper #paperPrintArea { display: block !important; width: 100%; margin: 0; }
+  .print-question {
+    break-inside: avoid;
+    padding: 0 0 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #999;
+  }
+  .print-question h3 { margin: 0 0 6px; font-size: 1rem; }
+  .print-options { margin: 6px 0 0; padding-left: 24px; }
+  .print-answer-key { break-before: page; }
 }
