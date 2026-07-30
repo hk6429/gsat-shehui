@@ -34,6 +34,9 @@ for (const bank of context.window.BANK.sort((a, b) => a.year - b.year)) {
     const acceptedAnswers = question.acceptedAnswers ?? [
       ...new Set(question.answer.split("")),
     ];
+    const officialNoAnswer =
+      acceptedAnswers.length === optionLabels.length &&
+      acceptedAnswers.every((label) => optionLabels.includes(label));
     const missingLabels = optionLabels.filter(
       (label) =>
         !new RegExp(
@@ -49,6 +52,16 @@ for (const bank of context.window.BANK.sort((a, b) => a.year - b.year)) {
       reasons.push("too-short");
     }
     if (
+      officialNoAnswer &&
+      !(
+        explanation.includes("官方公告") &&
+        explanation.includes("無答案") &&
+        explanation.includes("全體給分")
+      )
+    ) {
+      reasons.push("official-no-answer-not-explicit");
+    } else if (
+      !officialNoAnswer &&
       !acceptedAnswers.every(
         (label) =>
           explanation.includes(`答案為 ${label}`) ||
