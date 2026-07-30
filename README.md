@@ -26,6 +26,8 @@ npm test
 
 驗證器會檢查題數、題型、題組、圖片、分類、解析、官方統計邊界，以及完整官方答案序列。逐題覆核紀錄見 [`sources/115/REVIEW.md`](sources/115/REVIEW.md)。
 
+正式部署只使用 `npm run build` 產生的 `dist/`，不會把官方來源 PDF、校對文字或建置腳本公開成網站資產。
+
 ## 本機執行
 
 這是原生 HTML、CSS 與 JavaScript 製作的靜態網站，可使用任一靜態檔案伺服器開啟專案根目錄。
