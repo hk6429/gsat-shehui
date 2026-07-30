@@ -62,11 +62,11 @@
     <section class="panel controls no-print" id="filterPanel" aria-labelledby="filterTitle">
       <div class="tool-row">
         <h2 id="filterTitle">選擇範圍</h2>
-        <button class="text-toggle" id="advancedToggle" type="button" aria-expanded="false" aria-controls="filterBody">展開進階篩選 ▾</button>
+        <button class="text-toggle" id="advancedToggle" type="button" aria-expanded="true" aria-controls="filterBody">收合進階篩選 ▴</button>
       </div>
       <p class="filter-summary" id="filterSummary" aria-live="polite">正在讀取題庫……</p>
 
-      <div id="filterBody" hidden>
+      <div id="filterBody">
         <p class="filter-hint">選擇想練的學科與能力目標，或直接調整題型、難度與題數。</p>
         <div class="filter-grid">
           <label>年份
@@ -124,9 +124,9 @@
         <button class="button primary" id="reviewBtn" type="button" hidden>今日該複習 <b>0</b> 題</button>
         <button class="button secondary" id="wrongBtn" type="button">錯題本（<span id="wrongCount">0</span>）</button>
         <button class="button secondary" id="historyBtn" type="button">學習歷程</button>
-        <button class="text-toggle" id="moreToggle" type="button" aria-expanded="false">更多功能 ▾</button>
+        <button class="text-toggle" id="moreToggle" type="button" aria-expanded="true">收合更多功能 ▴</button>
       </div>
-      <div class="button-row more-row" id="moreRow" hidden>
+      <div class="button-row more-row" id="moreRow">
         <button class="button secondary" id="mockBtn" type="button">整回模考（需先選年份）</button>
         <button class="button secondary" id="paperBtn" type="button">出卷模式（老師）</button>
         <button class="button secondary" id="constructedBtn" type="button">非選擇題練習</button>

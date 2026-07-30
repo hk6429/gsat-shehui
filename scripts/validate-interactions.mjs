@@ -40,8 +40,15 @@ const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
+// 首頁須直接呈現完整練習設定，不把鑑別度與教師功能藏在摺疊區。
+assert(!$("filterBody").hidden, "首頁未預設展開完整篩選");
+assert(
+  $("discriminationSelect").options.length === 4,
+  "首頁鑑別度篩選選項不完整",
+);
+assert(!$("moreRow").hidden, "首頁未預設顯示整回模考與出卷功能");
+
 // 由易到難：即使同時勾著隨機，排序仍優先，且三題順序對應官方答對率。
-$("filterBody").hidden = false;
 $("countInput").value = "3";
 $("difficultySortCheckbox").checked = true;
 change($("difficultySortCheckbox"));
@@ -137,6 +144,7 @@ console.log(
       mockExam114: "64 questions / 110 minutes",
       dueReview: "VERIFIED",
       teacherPaper: "54 selected questions / answer key",
+      homepageControls: "expanded / discrimination + advanced actions visible",
       status: "VERIFIED",
     },
     null,
