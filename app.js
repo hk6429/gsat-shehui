@@ -39,9 +39,12 @@ const objectiveLabels = {
 };
 const $ = (id) => document.getElementById(id);
 const wrongBookKey = "gsatShehuiWrongBook";
+const historyKey = "gsatShehuiHistory";
+const fontSizeKey = "gsatShehuiFontSize";
 let currentQuestions = [];
 let answered = 0;
 let correct = 0;
+let sessionSaved = false;
 
 function escapeHtml(value) {
   return String(value)
@@ -140,11 +143,59 @@ function updateObjectives() {
 
 function updateSummary() {
   const matches = filteredQuestions();
-  $("filterSummary").textContent = `目前條件可選 ${matches.length} 題；將隨機抽出最多 ${Math.min(
-    Number($("countInput").value) || 10,
-    matches.length,
-  )} 題。`;
+  const year = $("yearSelect").value === "all" ? "年份 全部" : `年份 ${$("yearSelect").value}`;
+  const discipline =
+    $("disciplineSelect").value === "all"
+      ? "學科 全部"
+      : `學科 ${disciplineLabels[$("disciplineSelect").value]}`;
+  const typeLabels = { single: "選擇題", constructed: "非選擇題", all: "全部題型" };
+  const difficultyLabels = {
+    all: "難度不限",
+    easy: "較簡單",
+    medium: "中等",
+    hard: "較難",
+  };
+  const count = Math.min(Number($("countInput").value) || 10, matches.length);
+  $("filterSummary").textContent =
+    `${year} ・ ${discipline} ・ 每次 ${count} 題 ・ ${typeLabels[$("typeSelect").value]} ・ ` +
+    `${difficultyLabels[$("difficultySelect").value]} ・ 可選 ${matches.length} 題`;
   $("startBtn").disabled = matches.length === 0;
+}
+
+function updateWrongCount() {
+  $("wrongCount").textContent = Object.keys(safeRead(wrongBookKey, {})).length;
+}
+
+function saveHistoryIfComplete() {
+  const selectedCount = currentQuestions.filter((question) => question.type === "single").length;
+  if (sessionSaved || !selectedCount || answered !== selectedCount) return;
+  const history = safeRead(historyKey, []);
+  history.push({
+    completedAt: Date.now(),
+    total: selectedCount,
+    correct,
+  });
+  while (history.length > 30) history.shift();
+  safeWrite(historyKey, history);
+  sessionSaved = true;
+}
+
+function renderHistory() {
+  const history = safeRead(historyKey, []).slice().reverse();
+  $("historyList").innerHTML = history.length
+    ? history
+        .map((record) => {
+          const percentage = Math.round((record.correct / record.total) * 100);
+          const date = new Date(record.completedAt).toLocaleString("zh-TW", {
+            month: "numeric",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          return `<div class="history-row"><span>${escapeHtml(date)}</span><span class="history-bar"><i style="width:${percentage}%"></i></span><strong>${record.correct}／${record.total}（${percentage}%）</strong></div>`;
+        })
+        .join("")
+    : '<p class="history-empty">還沒有練習紀錄，先完成一回選擇題練習看看。</p>';
 }
 
 function renderGroup(question) {
@@ -285,7 +336,9 @@ function bindQuestionEvents() {
         if (isCorrect) delete wrongBook[id];
         else wrongBook[id] = { year: question.year, no: question.no, seenAt: Date.now() };
         safeWrite(wrongBookKey, wrongBook);
+        updateWrongCount();
         updateScore();
+        saveHistoryIfComplete();
         $("announcer").textContent = isCorrect
           ? `第 ${question.no} 題答對`
           : `第 ${question.no} 題答錯，正確答案 ${question.answer}`;
@@ -298,6 +351,7 @@ function startSession(questions) {
   currentQuestions = questions;
   answered = 0;
   correct = 0;
+  sessionSaved = false;
   $("questionList").innerHTML = questions
     .map((question, index) =>
       question.type === "constructed"
@@ -331,6 +385,13 @@ function startWrongBook() {
   startSession(shuffled(matches));
 }
 
+function setFontSize(size) {
+  document.documentElement.classList.remove("font-large", "font-xlarge");
+  if (size === "large") document.documentElement.classList.add("font-large");
+  if (size === "xlarge") document.documentElement.classList.add("font-xlarge");
+  safeWrite(fontSizeKey, size);
+}
+
 function init() {
   if (!banks.length) {
     $("filterSummary").textContent = "題庫載入失敗，請重新整理頁面。";
@@ -355,6 +416,12 @@ function init() {
     years.map((year) => `<option value="${year}">${year} 學年度</option>`).join("");
   updateObjectives();
   updateSummary();
+  updateWrongCount();
+  setFontSize(safeRead(fontSizeKey, "normal"));
+  if (window.matchMedia("(max-width: 600px)").matches) {
+    $("introBox").classList.add("collapsed");
+    $("introToggle").setAttribute("aria-expanded", "false");
+  }
 }
 
 $("disciplineSelect").addEventListener("change", () => {
@@ -383,12 +450,59 @@ $("quickBtn").addEventListener("click", () => {
   startFiltered();
 });
 $("wrongBtn").addEventListener("click", startWrongBook);
+$("advancedToggle").addEventListener("click", () => {
+  const body = $("filterBody");
+  const expanded = body.hidden;
+  body.hidden = !expanded;
+  $("advancedToggle").setAttribute("aria-expanded", String(expanded));
+  $("advancedToggle").textContent = expanded ? "收合進階篩選 ▴" : "展開進階篩選 ▾";
+});
+$("moreToggle").addEventListener("click", () => {
+  const row = $("moreRow");
+  const expanded = row.hidden;
+  row.hidden = !expanded;
+  $("moreToggle").setAttribute("aria-expanded", String(expanded));
+  $("moreToggle").textContent = expanded ? "收合更多功能 ▴" : "更多功能 ▾";
+});
+$("historyBtn").addEventListener("click", () => {
+  renderHistory();
+  $("historyPanel").hidden = false;
+  $("historyPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+$("historyCloseBtn").addEventListener("click", () => {
+  $("historyPanel").hidden = true;
+});
+$("constructedBtn").addEventListener("click", () => {
+  $("yearSelect").value = "all";
+  $("disciplineSelect").value = "all";
+  $("typeSelect").value = "constructed";
+  $("difficultySelect").value = "all";
+  $("countInput").value = "11";
+  updateObjectives();
+  $("objectiveSelect").value = "all";
+  updateSummary();
+  startFiltered();
+});
+$("introToggle").addEventListener("click", () => {
+  const collapsed = !$("introBox").classList.contains("collapsed");
+  $("introBox").classList.toggle("collapsed", collapsed);
+  $("introToggle").setAttribute("aria-expanded", String(!collapsed));
+  $("introToggle").textContent = collapsed ? "看更多 ▾" : "收合 ▴";
+});
+$("fontFold").addEventListener("click", () => {
+  const folded = $("fontSizeControl").classList.toggle("folded");
+  $("fontFold").setAttribute("aria-expanded", String(!folded));
+});
+document.querySelectorAll(".font-option").forEach((button) => {
+  button.addEventListener("click", () => setFontSize(button.dataset.size));
+});
 $("resetBtn").addEventListener("click", () => {
   $("session").hidden = true;
   $("questionList").innerHTML = "";
   currentQuestions = [];
   answered = 0;
   correct = 0;
+  sessionSaved = false;
 });
 
 init();
