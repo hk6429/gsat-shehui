@@ -259,14 +259,33 @@ function renderTopics() {
     ${order.map((discipline) => {
       const majors = [...(hierarchy.get(discipline) || new Map())].sort(([a], [b]) => a.localeCompare(b, "zh-Hant"));
       return `<section class="topic-discipline" data-discipline="${discipline}">
-        <h3>${disciplineLabels[discipline]}</h3>
-        ${majors.map(([major, minors]) => `<div class="topic-major">
-          <label><input class="topic-checkbox" type="checkbox" value="${escapeHtml(topicKey(discipline, major))}" data-label="${escapeHtml(major)}"> <b>${escapeHtml(major)}</b></label>
-          ${minors.size ? `<div class="topic-minors">${[...minors].sort((a, b) => a.localeCompare(b, "zh-Hant")).map((minor) => `<label><input class="topic-checkbox" type="checkbox" value="${escapeHtml(topicKey(discipline, minor))}" data-label="${escapeHtml(minor)}"> ${escapeHtml(minor)}</label>`).join("")}</div>` : ""}
-        </div>`).join("")}
+        <h3><span>${disciplineLabels[discipline]}</span><small>${majors.length} 個大分類</small></h3>
+        <div class="topic-major-list">
+          ${majors.map(([major, minors], index) => {
+            const minorId = `topic-minors-${discipline}-${index}`;
+            return `<article class="topic-major">
+              <div class="topic-major-head">
+                <label><input class="topic-checkbox" type="checkbox" value="${escapeHtml(topicKey(discipline, major))}" data-label="${escapeHtml(major)}"> <b>${escapeHtml(major)}</b></label>
+                ${minors.size ? `<button class="topic-minor-toggle" type="button" aria-expanded="false" aria-controls="${minorId}">展開 ${minors.size} 個小標 ▾</button>` : ""}
+              </div>
+              ${minors.size ? `<div class="topic-minors" id="${minorId}" hidden>${[...minors].sort((a, b) => a.localeCompare(b, "zh-Hant")).map((minor) => `<label><input class="topic-checkbox" type="checkbox" value="${escapeHtml(topicKey(discipline, minor))}" data-label="${escapeHtml(minor)}"> ${escapeHtml(minor)}</label>`).join("")}</div>` : ""}
+            </article>`;
+          }).join("")}
+        </div>
       </section>`;
     }).join("")}`;
   updateTopicSummary();
+}
+
+function handleTopicToggle(event) {
+  const button = event.target.closest(".topic-minor-toggle");
+  if (!button) return;
+  const minors = $(button.getAttribute("aria-controls"));
+  const expanded = button.getAttribute("aria-expanded") !== "true";
+  button.setAttribute("aria-expanded", String(expanded));
+  minors.hidden = !expanded;
+  const count = minors.querySelectorAll(".topic-checkbox").length;
+  button.textContent = expanded ? `收合 ${count} 個小標 ▴` : `展開 ${count} 個小標 ▾`;
 }
 
 function updateTopicVisibility() {
@@ -1146,6 +1165,7 @@ function init() {
 
 $("disciplineOptions").addEventListener("change", handleDisciplineChange);
 $("topicOptions").addEventListener("change", handleTopicChange);
+$("topicOptions").addEventListener("click", handleTopicToggle);
 for (const id of [
   "objectiveSelect",
   "typeSelect",

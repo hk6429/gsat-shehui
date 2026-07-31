@@ -25,6 +25,7 @@ for (const expected of [
   "function selectedDisciplines()",
   "function selectedTopics()",
   "function renderTopics()",
+  "function handleTopicToggle(event)",
   "topics.has(topicKey(question.discipline, tag))",
   "function discriminationValue(question)",
   "function inDiscrimination(question, value)",

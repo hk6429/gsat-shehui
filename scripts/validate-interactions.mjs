@@ -74,6 +74,11 @@ const naturalGeography = [...window.document.querySelectorAll(".topic-checkbox")
   (checkbox) => checkbox.dataset.label === "自然地理" && checkbox.value.startsWith("geography"),
 );
 assert(taiwanHistory && naturalGeography, "課綱主題缺少跨學科大分類");
+const firstMinorToggle = window.document.querySelector(".topic-minor-toggle");
+const firstMinorPanel = $(firstMinorToggle.getAttribute("aria-controls"));
+assert(firstMinorPanel.hidden, "主題小標不應預設全部展開");
+click(firstMinorToggle);
+assert(!firstMinorPanel.hidden && firstMinorToggle.getAttribute("aria-expanded") === "true", "主題小標無法展開");
 click(taiwanHistory);
 click(naturalGeography);
 const topicMatches = window.BANK.flatMap((bank) => bank.questions).filter(

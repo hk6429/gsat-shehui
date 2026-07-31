@@ -377,10 +377,7 @@ select, input, textarea {
 .discipline-options input, .topic-options input { width: 18px; min-height: 18px; accent-color: var(--seal); }
 .topic-filter { grid-column: 1 / -1; min-width: 0; }
 .topic-options {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  max-height: 430px;
+  max-height: 520px;
   padding: 12px;
   margin-top: 4px;
   overflow-y: auto;
@@ -389,12 +386,49 @@ select, input, textarea {
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(29, 43, 79, .16);
 }
-.topic-options > .paper-year-all { grid-column: 1 / -1; }
-.topic-discipline { min-width: 0; }
-.topic-discipline h3 { margin: 0 0 8px; color: var(--seal); font-size: 1rem; }
-.topic-major { padding: 7px 0; border-top: 1px dashed var(--line); }
-.topic-major > label, .topic-minors label { display: flex; align-items: flex-start; gap: 6px; color: var(--ink); }
-.topic-minors { display: grid; gap: 4px; padding: 5px 0 0 24px; }
+.topic-options > .paper-year-all { padding: 0 0 10px; }
+.topic-discipline { min-width: 0; padding-top: 12px; }
+.topic-discipline + .topic-discipline { margin-top: 16px; border-top: 2px solid var(--line); }
+.topic-discipline h3 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 10px;
+  color: var(--seal);
+  font-size: 1.05rem;
+}
+.topic-discipline h3 small { color: var(--muted); font-size: .78rem; font-weight: 500; }
+.topic-major-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.topic-major {
+  min-width: 0;
+  padding: 10px;
+  background: #f8f9fd;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.topic-major-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.topic-major-head label, .topic-minors label { display: flex; align-items: flex-start; gap: 6px; color: var(--ink); }
+.topic-minor-toggle {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 5px 8px;
+  color: var(--accent-2);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font-size: .76rem;
+  cursor: pointer;
+}
+.topic-minors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 10px;
+  padding: 10px 0 0 24px;
+  margin-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+.topic-minors[hidden] { display: none; }
 .paper-year-filter legend {
   padding: 0;
   margin-bottom: 4px;
@@ -620,7 +654,8 @@ select, input, textarea {
   .intro-toggle { display: inline-flex; }
   .filter-grid { grid-template-columns: 1fr; }
   .discipline-filter, .topic-filter { grid-column: 1; }
-  .topic-options { grid-template-columns: 1fr; }
+  .topic-major-list, .topic-minors { grid-template-columns: 1fr; }
+  .topic-major-head { align-items: flex-start; }
   .paper-quick-row label, .paper-size-label { grid-template-columns: 1fr; }
   .paper-year-options { grid-template-columns: repeat(2, minmax(100px, 1fr)); }
   .paper-year-options label { display: flex; }
