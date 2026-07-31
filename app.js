@@ -169,9 +169,127 @@ function handleMainYearChange(event) {
   updateSummary();
 }
 
+function selectedDisciplines() {
+  if ($("disciplineAll").checked) return null;
+  return new Set(
+    [...document.querySelectorAll(".discipline-checkbox:checked")].map(
+      (checkbox) => checkbox.value,
+    ),
+  );
+}
+
+function resetDisciplines() {
+  $("disciplineAll").checked = true;
+  document.querySelectorAll(".discipline-checkbox").forEach((checkbox) => {
+    checkbox.checked = false;
+  });
+}
+
+function handleDisciplineChange(event) {
+  const all = $("disciplineAll");
+  const disciplines = [...document.querySelectorAll(".discipline-checkbox")];
+  if (event.target === all && all.checked) {
+    disciplines.forEach((checkbox) => { checkbox.checked = false; });
+  } else if (event.target.classList.contains("discipline-checkbox") && event.target.checked) {
+    all.checked = false;
+  }
+  if (!all.checked && !disciplines.some((checkbox) => checkbox.checked)) all.checked = true;
+  updateTopicVisibility();
+  updateObjectives();
+  updateSummary();
+}
+
+function topicKey(discipline, tag) {
+  return `${discipline}\u001f${tag}`;
+}
+
+function selectedTopics() {
+  if ($("topicAll").checked) return null;
+  return new Set(
+    [...document.querySelectorAll(".topic-checkbox:checked")].map(
+      (checkbox) => checkbox.value,
+    ),
+  );
+}
+
+function updateTopicSummary() {
+  const selected = [...document.querySelectorAll(".topic-checkbox:checked")]
+    .map((checkbox) => checkbox.dataset.label);
+  $("topicSummary").textContent = $("topicAll").checked || !selected.length
+    ? "全部主題"
+    : selected.length <= 3
+      ? selected.join("、")
+      : `${selected.slice(0, 2).join("、")}等 ${selected.length} 個主題`;
+}
+
+function resetTopics() {
+  $("topicAll").checked = true;
+  document.querySelectorAll(".topic-checkbox").forEach((checkbox) => {
+    checkbox.checked = false;
+  });
+  updateTopicSummary();
+}
+
+function handleTopicChange(event) {
+  const all = $("topicAll");
+  const topics = [...document.querySelectorAll(".topic-checkbox")];
+  if (event.target === all && all.checked) {
+    topics.forEach((checkbox) => { checkbox.checked = false; });
+  } else if (event.target.classList.contains("topic-checkbox") && event.target.checked) {
+    all.checked = false;
+  }
+  if (!all.checked && !topics.some((checkbox) => checkbox.checked)) all.checked = true;
+  updateTopicSummary();
+  updateSummary();
+}
+
+function renderTopics() {
+  const hierarchy = new Map();
+  for (const question of allQuestions()) {
+    if (!hierarchy.has(question.discipline)) hierarchy.set(question.discipline, new Map());
+    const [major, ...minorTags] = question.tags || [];
+    if (!major) continue;
+    const majors = hierarchy.get(question.discipline);
+    if (!majors.has(major)) majors.set(major, new Set());
+    minorTags.forEach((tag) => majors.get(major).add(tag));
+  }
+  const order = ["history", "geography", "civics", "integrated"];
+  $("topicOptions").innerHTML = `
+    <label class="paper-year-all"><input id="topicAll" type="checkbox" value="all" checked> 全部主題</label>
+    ${order.map((discipline) => {
+      const majors = [...(hierarchy.get(discipline) || new Map())].sort(([a], [b]) => a.localeCompare(b, "zh-Hant"));
+      return `<section class="topic-discipline" data-discipline="${discipline}">
+        <h3>${disciplineLabels[discipline]}</h3>
+        ${majors.map(([major, minors]) => `<div class="topic-major">
+          <label><input class="topic-checkbox" type="checkbox" value="${escapeHtml(topicKey(discipline, major))}" data-label="${escapeHtml(major)}"> <b>${escapeHtml(major)}</b></label>
+          ${minors.size ? `<div class="topic-minors">${[...minors].sort((a, b) => a.localeCompare(b, "zh-Hant")).map((minor) => `<label><input class="topic-checkbox" type="checkbox" value="${escapeHtml(topicKey(discipline, minor))}" data-label="${escapeHtml(minor)}"> ${escapeHtml(minor)}</label>`).join("")}</div>` : ""}
+        </div>`).join("")}
+      </section>`;
+    }).join("")}`;
+  updateTopicSummary();
+}
+
+function updateTopicVisibility() {
+  const disciplines = selectedDisciplines();
+  document.querySelectorAll(".topic-discipline").forEach((section) => {
+    const visible = !disciplines || disciplines.has(section.dataset.discipline);
+    section.hidden = !visible;
+    if (!visible) {
+      section.querySelectorAll(".topic-checkbox").forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+    }
+  });
+  if (![...document.querySelectorAll(".topic-checkbox")].some((checkbox) => checkbox.checked)) {
+    $("topicAll").checked = true;
+  }
+  updateTopicSummary();
+}
+
 function filteredQuestions() {
   const years = selectedMainYears();
-  const discipline = $("disciplineSelect").value;
+  const disciplines = selectedDisciplines();
+  const topics = selectedTopics();
   const objective = $("objectiveSelect").value;
   const type = $("typeSelect").value;
   const difficulty = $("difficultySelect").value;
@@ -179,7 +297,8 @@ function filteredQuestions() {
   return allQuestions().filter(
     (question) =>
       (!years || years.has(String(question.year))) &&
-      (discipline === "all" || question.discipline === discipline) &&
+      (!disciplines || disciplines.has(question.discipline)) &&
+      (!topics || (question.tags || []).some((tag) => topics.has(topicKey(question.discipline, tag)))) &&
       (objective === "all" || question.objective === objective) &&
       (
         type === "all" ||
@@ -193,12 +312,12 @@ function filteredQuestions() {
 }
 
 function updateObjectives() {
-  const discipline = $("disciplineSelect").value;
+  const disciplines = selectedDisciplines();
   const previous = $("objectiveSelect").value;
   const objectives = [
     ...new Set(
       allQuestions()
-        .filter((question) => discipline === "all" || question.discipline === discipline)
+        .filter((question) => !disciplines || disciplines.has(question.discipline))
         .map((question) => question.objective),
     ),
   ].sort();
@@ -216,10 +335,11 @@ function updateObjectives() {
 function updateSummary() {
   const matches = filteredQuestions();
   const year = `年份 ${$("mainYearSummary").textContent}`;
-  const discipline =
-    $("disciplineSelect").value === "all"
-      ? "學科 全部"
-      : `學科 ${disciplineLabels[$("disciplineSelect").value]}`;
+  const selectedDisciplineValues = [...document.querySelectorAll(".discipline-checkbox:checked")]
+    .map((checkbox) => disciplineLabels[checkbox.value]);
+  const discipline = $("disciplineAll").checked
+    ? "學科 全部"
+    : `學科 ${selectedDisciplineValues.join("、")}`;
   const typeLabels = { single: "選擇題", constructed: "非選擇題", all: "全部題型" };
   const difficultyLabels = {
     all: "難度不限",
@@ -241,7 +361,7 @@ function updateSummary() {
       : "依年份題號";
   const timing = $("timedCheckbox").checked ? "計時" : "不限時";
   $("filterSummary").textContent =
-    `${year} ・ ${discipline} ・ 每次 ${count} 題 ・ ${typeLabels[$("typeSelect").value]} ・ ` +
+    `${year} ・ ${discipline} ・ 主題 ${$("topicSummary").textContent} ・ 每次 ${count} 題 ・ ${typeLabels[$("typeSelect").value]} ・ ` +
     `${difficultyLabels[$("difficultySelect").value]} ・ ` +
     `${discriminationLabels[$("discriminationSelect").value]} ・ ${order} ・ ${timing} ・ 可選 ${matches.length} 題`;
   $("startBtn").disabled = matches.length === 0;
@@ -1012,6 +1132,8 @@ function init() {
     <label class="paper-year-all"><input id="mainYearAll" type="checkbox" value="all" checked> 全部年度</label>
     ${years.map((year) => `<label><input class="main-year-checkbox" type="checkbox" value="${year}"> ${year} 學年度</label>`).join("")}`;
   updateMainYearSummary();
+  renderTopics();
+  updateTopicVisibility();
   updateObjectives();
   updateSummary();
   updateWrongCount();
@@ -1022,10 +1144,8 @@ function init() {
   }
 }
 
-$("disciplineSelect").addEventListener("change", () => {
-  updateObjectives();
-  updateSummary();
-});
+$("disciplineOptions").addEventListener("change", handleDisciplineChange);
+$("topicOptions").addEventListener("change", handleTopicChange);
 for (const id of [
   "objectiveSelect",
   "typeSelect",
@@ -1043,7 +1163,9 @@ $("mainYearOptions").addEventListener("change", handleMainYearChange);
 $("startBtn").addEventListener("click", startFiltered);
 $("quickBtn").addEventListener("click", () => {
   resetMainYears();
-  $("disciplineSelect").value = "all";
+  resetDisciplines();
+  updateTopicVisibility();
+  resetTopics();
   $("typeSelect").value = "single";
   $("difficultySelect").value = "all";
   $("discriminationSelect").value = "all";
@@ -1126,7 +1248,9 @@ window.addEventListener("afterprint", () => {
 });
 $("constructedBtn").addEventListener("click", () => {
   resetMainYears();
-  $("disciplineSelect").value = "all";
+  resetDisciplines();
+  updateTopicVisibility();
+  resetTopics();
   $("typeSelect").value = "constructed";
   $("difficultySelect").value = "all";
   $("discriminationSelect").value = "all";

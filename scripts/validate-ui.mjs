@@ -9,6 +9,9 @@ const bankSource = fs.readFileSync(
 );
 
 for (const expected of [
+  'id="disciplineOptions"',
+  'id="topicOptions"',
+  'id="topicSummary"',
   'id="discriminationSelect"',
   '<option value="high">高（≥ 0.5）</option>',
   '<option value="medium">中（0.3–0.5）</option>',
@@ -19,6 +22,10 @@ for (const expected of [
   }
 }
 for (const expected of [
+  "function selectedDisciplines()",
+  "function selectedTopics()",
+  "function renderTopics()",
+  "topics.has(topicKey(question.discipline, tag))",
   "function discriminationValue(question)",
   "function inDiscrimination(question, value)",
   "inDiscrimination(question, discrimination)",

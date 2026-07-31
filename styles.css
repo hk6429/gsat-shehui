@@ -356,6 +356,45 @@ select, input, textarea {
 .main-year-filter .paper-year-options {
   min-width: 0;
 }
+.discipline-filter {
+  grid-column: span 2;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.discipline-filter legend { margin-bottom: 4px; font-size: .88rem; }
+.discipline-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  min-height: 44px;
+  padding: 8px 10px;
+  background: #f4f6fc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.discipline-options label { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+.discipline-options input, .topic-options input { width: 18px; min-height: 18px; accent-color: var(--seal); }
+.topic-filter { grid-column: 1 / -1; min-width: 0; }
+.topic-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 430px;
+  padding: 12px;
+  margin-top: 4px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(29, 43, 79, .16);
+}
+.topic-options > .paper-year-all { grid-column: 1 / -1; }
+.topic-discipline { min-width: 0; }
+.topic-discipline h3 { margin: 0 0 8px; color: var(--seal); font-size: 1rem; }
+.topic-major { padding: 7px 0; border-top: 1px dashed var(--line); }
+.topic-major > label, .topic-minors label { display: flex; align-items: flex-start; gap: 6px; color: var(--ink); }
+.topic-minors { display: grid; gap: 4px; padding: 5px 0 0 24px; }
 .paper-year-filter legend {
   padding: 0;
   margin-bottom: 4px;
@@ -580,6 +619,8 @@ select, input, textarea {
   .page-wrap, main { width: min(100% - 20px, 860px); padding-top: 10px; }
   .intro-toggle { display: inline-flex; }
   .filter-grid { grid-template-columns: 1fr; }
+  .discipline-filter, .topic-filter { grid-column: 1; }
+  .topic-options { grid-template-columns: 1fr; }
   .paper-quick-row label, .paper-size-label { grid-template-columns: 1fr; }
   .paper-year-options { grid-template-columns: repeat(2, minmax(100px, 1fr)); }
   .paper-year-options label { display: flex; }

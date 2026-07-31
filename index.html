@@ -77,15 +77,23 @@
               <div class="paper-year-options" id="mainYearOptions"></div>
             </details>
           </fieldset>
-          <label>學科
-            <select id="disciplineSelect">
-              <option value="all">全部學科</option>
-              <option value="history">歷史</option>
-              <option value="geography">地理</option>
-              <option value="civics">公民與社會</option>
-              <option value="integrated">跨科整合</option>
-            </select>
-          </label>
+          <fieldset class="discipline-filter">
+            <legend>學科（可複選）</legend>
+            <div class="discipline-options" id="disciplineOptions">
+              <label><input id="disciplineAll" type="checkbox" value="all" checked> 全部學科</label>
+              <label><input class="discipline-checkbox" type="checkbox" value="history"> 歷史</label>
+              <label><input class="discipline-checkbox" type="checkbox" value="geography"> 地理</label>
+              <label><input class="discipline-checkbox" type="checkbox" value="civics"> 公民與社會</label>
+              <label><input class="discipline-checkbox" type="checkbox" value="integrated"> 跨科整合</label>
+            </div>
+          </fieldset>
+          <fieldset class="paper-year-filter topic-filter">
+            <legend>課綱主題（大分類／小標，可複選）</legend>
+            <details class="paper-year-multi" id="topicFilter">
+              <summary id="topicSummary">全部主題</summary>
+              <div class="topic-options" id="topicOptions"></div>
+            </details>
+          </fieldset>
           <label>能力目標
             <select id="objectiveSelect"><option value="all">全部能力目標</option></select>
           </label>

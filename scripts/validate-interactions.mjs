@@ -48,6 +48,13 @@ const chooseMainYears = (...values) => {
   });
   change(wanted.size ? checkboxes.find((checkbox) => checkbox.checked) : $("mainYearAll"));
 };
+const chooseDisciplines = (...values) => {
+  const wanted = new Set(values);
+  $("disciplineAll").checked = wanted.size === 0;
+  const checkboxes = [...window.document.querySelectorAll(".discipline-checkbox")];
+  checkboxes.forEach((checkbox) => { checkbox.checked = wanted.has(checkbox.value); });
+  change(wanted.size ? checkboxes.find((checkbox) => checkbox.checked) : $("disciplineAll"));
+};
 
 // 首頁須直接呈現完整練習設定，不把鑑別度與教師功能藏在摺疊區。
 assert(!$("filterBody").hidden, "首頁未預設展開完整篩選");
@@ -56,6 +63,28 @@ assert(
   "首頁鑑別度篩選選項不完整",
 );
 assert(!$("moreRow").hidden, "首頁未預設顯示整回模考與出卷功能");
+
+// 學科與課綱主題皆可複選，主題以聯集方式納入符合任一標籤的題目。
+chooseDisciplines("history", "geography");
+assert(!$("disciplineAll").checked, "學科複選未取消全部學科");
+const taiwanHistory = [...window.document.querySelectorAll(".topic-checkbox")].find(
+  (checkbox) => checkbox.dataset.label === "臺灣史" && checkbox.value.startsWith("history"),
+);
+const naturalGeography = [...window.document.querySelectorAll(".topic-checkbox")].find(
+  (checkbox) => checkbox.dataset.label === "自然地理" && checkbox.value.startsWith("geography"),
+);
+assert(taiwanHistory && naturalGeography, "課綱主題缺少跨學科大分類");
+click(taiwanHistory);
+click(naturalGeography);
+const topicMatches = window.BANK.flatMap((bank) => bank.questions).filter(
+  (question) =>
+    question.type !== "constructed" &&
+    ((question.discipline === "history" && question.tags.includes("臺灣史")) ||
+      (question.discipline === "geography" && question.tags.includes("自然地理"))),
+).length;
+assert($("filterSummary").textContent.includes(`可選 ${topicMatches} 題`), "主題複選未採聯集篩選");
+chooseDisciplines();
+click($("topicAll"));
 
 // 由易到難：即使同時勾著隨機，排序仍優先，且三題順序對應官方答對率。
 $("countInput").value = "3";
