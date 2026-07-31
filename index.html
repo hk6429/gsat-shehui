@@ -70,9 +70,13 @@
       <div id="filterBody">
         <p class="filter-hint">選擇想練的學科與能力目標，或直接調整題型、難度與題數。</p>
         <div class="filter-grid">
-          <label>年份
-            <select id="yearSelect"><option value="all">全部年份</option></select>
-          </label>
+          <fieldset class="paper-year-filter main-year-filter">
+            <legend>年份（可複選）</legend>
+            <details class="paper-year-multi" id="mainYearFilter">
+              <summary id="mainYearSummary">全部年度</summary>
+              <div class="paper-year-options" id="mainYearOptions"></div>
+            </details>
+          </fieldset>
           <label>學科
             <select id="disciplineSelect">
               <option value="all">全部學科</option>

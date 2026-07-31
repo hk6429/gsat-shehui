@@ -125,8 +125,52 @@ function inDiscrimination(question, value) {
   return discrimination < 0.3;
 }
 
+function selectedMainYears() {
+  if ($("mainYearAll").checked) return null;
+  return new Set(
+    [...document.querySelectorAll(".main-year-checkbox:checked")].map(
+      (checkbox) => checkbox.value,
+    ),
+  );
+}
+
+function updateMainYearSummary() {
+  const years = [...document.querySelectorAll(".main-year-checkbox:checked")]
+    .map((checkbox) => Number(checkbox.value))
+    .sort((a, b) => b - a);
+  $("mainYearSummary").textContent =
+    $("mainYearAll").checked || !years.length
+      ? "全部年度"
+      : years.length <= 4
+        ? `${years.join("、")} 學年度`
+        : `${years.slice(0, 3).join("、")} 等 ${years.length} 個年度`;
+}
+
+function resetMainYears() {
+  $("mainYearAll").checked = true;
+  document.querySelectorAll(".main-year-checkbox").forEach((checkbox) => {
+    checkbox.checked = false;
+  });
+  updateMainYearSummary();
+}
+
+function handleMainYearChange(event) {
+  const all = $("mainYearAll");
+  const years = [...document.querySelectorAll(".main-year-checkbox")];
+  if (event.target === all && all.checked) {
+    years.forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+  } else if (event.target.classList.contains("main-year-checkbox") && event.target.checked) {
+    all.checked = false;
+  }
+  if (!all.checked && !years.some((checkbox) => checkbox.checked)) all.checked = true;
+  updateMainYearSummary();
+  updateSummary();
+}
+
 function filteredQuestions() {
-  const year = $("yearSelect").value;
+  const years = selectedMainYears();
   const discipline = $("disciplineSelect").value;
   const objective = $("objectiveSelect").value;
   const type = $("typeSelect").value;
@@ -134,7 +178,7 @@ function filteredQuestions() {
   const discrimination = $("discriminationSelect").value;
   return allQuestions().filter(
     (question) =>
-      (year === "all" || String(question.year) === year) &&
+      (!years || years.has(String(question.year))) &&
       (discipline === "all" || question.discipline === discipline) &&
       (objective === "all" || question.objective === objective) &&
       (
@@ -171,7 +215,7 @@ function updateObjectives() {
 
 function updateSummary() {
   const matches = filteredQuestions();
-  const year = $("yearSelect").value === "all" ? "年份 全部" : `年份 ${$("yearSelect").value}`;
+  const year = `年份 ${$("mainYearSummary").textContent}`;
   const discipline =
     $("disciplineSelect").value === "all"
       ? "學科 全部"
@@ -648,15 +692,17 @@ function startWrongBook(dueOnly = false) {
 }
 
 function startMock() {
-  const year = $("yearSelect").value;
-  if (year === "all") {
+  const selectedYears = selectedMainYears();
+  if (!selectedYears || selectedYears.size !== 1) {
     $("filterBody").hidden = false;
     $("advancedToggle").setAttribute("aria-expanded", "true");
     $("advancedToggle").textContent = "收合進階篩選 ▴";
-    $("yearSelect").focus();
-    window.alert("請先選擇一個特定年份，再開始整回模考。");
+    $("mainYearFilter").open = true;
+    $("mainYearSummary").focus();
+    window.alert("整回模考一次只能使用一份原卷，請只勾選一個特定年份。");
     return;
   }
+  const year = [...selectedYears][0];
   const bank = banks.find((item) => String(item.year) === year);
   if (!bank) return;
   const questions = allQuestions()
@@ -962,9 +1008,10 @@ function init() {
     (question) => question.sourceReview === "pending",
   );
   const years = [...new Set(banks.map((bank) => bank.year))].sort((a, b) => b - a);
-  $("yearSelect").innerHTML =
-    '<option value="all">全部年份</option>' +
-    years.map((year) => `<option value="${year}">${year} 學年度</option>`).join("");
+  $("mainYearOptions").innerHTML = `
+    <label class="paper-year-all"><input id="mainYearAll" type="checkbox" value="all" checked> 全部年度</label>
+    ${years.map((year) => `<label><input class="main-year-checkbox" type="checkbox" value="${year}"> ${year} 學年度</label>`).join("")}`;
+  updateMainYearSummary();
   updateObjectives();
   updateSummary();
   updateWrongCount();
@@ -980,7 +1027,6 @@ $("disciplineSelect").addEventListener("change", () => {
   updateSummary();
 });
 for (const id of [
-  "yearSelect",
   "objectiveSelect",
   "typeSelect",
   "difficultySelect",
@@ -993,9 +1039,10 @@ for (const id of [
   $(id).addEventListener("change", updateSummary);
   $(id).addEventListener("input", updateSummary);
 }
+$("mainYearOptions").addEventListener("change", handleMainYearChange);
 $("startBtn").addEventListener("click", startFiltered);
 $("quickBtn").addEventListener("click", () => {
-  $("yearSelect").value = "all";
+  resetMainYears();
   $("disciplineSelect").value = "all";
   $("typeSelect").value = "single";
   $("difficultySelect").value = "all";
@@ -1078,7 +1125,7 @@ window.addEventListener("afterprint", () => {
   document.body.classList.remove("printing-paper");
 });
 $("constructedBtn").addEventListener("click", () => {
-  $("yearSelect").value = "all";
+  resetMainYears();
   $("disciplineSelect").value = "all";
   $("typeSelect").value = "constructed";
   $("difficultySelect").value = "all";

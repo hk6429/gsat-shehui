@@ -39,6 +39,15 @@ const change = (element) =>
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
+const chooseMainYears = (...values) => {
+  const wanted = new Set(values.map(String));
+  $("mainYearAll").checked = wanted.size === 0;
+  const checkboxes = [...window.document.querySelectorAll(".main-year-checkbox")];
+  checkboxes.forEach((checkbox) => {
+    checkbox.checked = wanted.has(checkbox.value);
+  });
+  change(wanted.size ? checkboxes.find((checkbox) => checkbox.checked) : $("mainYearAll"));
+};
 
 // 首頁須直接呈現完整練習設定，不把鑑別度與教師功能藏在摺疊區。
 assert(!$("filterBody").hidden, "首頁未預設展開完整篩選");
@@ -88,8 +97,7 @@ assert(!timedCard.querySelector(".feedback").hidden, "計時模式交卷後未�
 
 // 90 年舊制複選題：可同時選取多個答案，確認後依官方答案 BDE 判分。
 click($("resetBtn"));
-$("yearSelect").value = "90";
-change($("yearSelect"));
+chooseMainYears(90);
 $("timedCheckbox").checked = false;
 $("countInput").value = "80";
 click($("startBtn"));
@@ -108,8 +116,7 @@ assert(
 
 // 整回模考：指定 114 年後須載入完整 64 題，並使用 110 分鐘倒數。
 click($("resetBtn"));
-$("yearSelect").value = "114";
-change($("yearSelect"));
+chooseMainYears(114);
 click($("mockBtn"));
 assert(
   window.document.querySelectorAll(".question-card").length === 64,
@@ -135,8 +142,7 @@ assert($("paperPrintArea").textContent.includes("教師答案"), "列印內容�
 
 // 教師出卷年度可複選：同時勾選 113、114 年，只選出這兩年的題目。
 click($("paperCloseBtn"));
-$("yearSelect").value = "all";
-change($("yearSelect"));
+chooseMainYears();
 click($("paperBtn"));
 const year113 = window.document.querySelector('.paper-year-checkbox[value="113"]');
 const year114 = window.document.querySelector('.paper-year-checkbox[value="114"]');

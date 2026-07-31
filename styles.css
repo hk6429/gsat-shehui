@@ -350,6 +350,12 @@ select, input, textarea {
   margin: 0;
   border: 0;
 }
+.main-year-filter {
+  min-width: 0;
+}
+.main-year-filter .paper-year-options {
+  min-width: 0;
+}
 .paper-year-filter legend {
   padding: 0;
   margin-bottom: 4px;
