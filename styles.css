@@ -344,6 +344,63 @@ select, input, textarea {
   align-items: center;
   gap: 8px;
 }
+.paper-year-filter {
+  min-width: min(100%, 250px);
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.paper-year-filter legend {
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: .88rem;
+}
+.paper-year-multi {
+  position: relative;
+}
+.paper-year-multi summary {
+  min-height: 42px;
+  padding: 9px 34px 9px 12px;
+  overflow: hidden;
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  list-style-position: inside;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.paper-year-options {
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(92px, 1fr));
+  gap: 2px 10px;
+  width: 100%;
+  min-width: 250px;
+  max-height: 260px;
+  padding: 10px;
+  margin-top: 4px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(29, 43, 79, .16);
+}
+.paper-year-options label {
+  display: flex;
+  grid-template-columns: none;
+  min-height: 38px;
+  gap: 6px;
+  cursor: pointer;
+}
+.paper-year-options input { width: 18px; height: 18px; }
+.paper-year-all {
+  grid-column: 1 / -1;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 700;
+}
 .paper-quick-row select,
 .paper-size-label select { min-height: 42px; }
 .paper-size-label {
@@ -518,6 +575,8 @@ select, input, textarea {
   .intro-toggle { display: inline-flex; }
   .filter-grid { grid-template-columns: 1fr; }
   .paper-quick-row label, .paper-size-label { grid-template-columns: 1fr; }
+  .paper-year-options { grid-template-columns: repeat(2, minmax(100px, 1fr)); }
+  .paper-year-options label { display: flex; }
   .button-row { gap: 8px; }
   .button-row .button { flex: 1 1 auto; padding: 10px 16px; font-size: .95rem; }
   .quick-button { padding: 14px 18px !important; font-size: 1.02rem !important; }

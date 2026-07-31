@@ -133,6 +133,33 @@ click($("paperPrintBtn"));
 assert(printed, "教師出卷未觸發列印");
 assert($("paperPrintArea").textContent.includes("教師答案"), "列印內容缺少教師答案");
 
+// 教師出卷年度可複選：同時勾選 113、114 年，只選出這兩年的題目。
+click($("paperCloseBtn"));
+$("yearSelect").value = "all";
+change($("yearSelect"));
+click($("paperBtn"));
+const year113 = window.document.querySelector('.paper-year-checkbox[value="113"]');
+const year114 = window.document.querySelector('.paper-year-checkbox[value="114"]');
+assert(year113 && year114, "教師出卷缺少 113、114 年複選項目");
+click(year113);
+click(year114);
+click($("paperQuickBtn"));
+const selectedPaperYears = [
+  ...window.document.querySelectorAll(".paper-question-checkbox:checked"),
+].map((checkbox) => {
+  const label = checkbox.closest("label");
+  return Number(label.querySelector("b").textContent.split("－")[0]);
+});
+assert(selectedPaperYears.length > 54, "教師出卷年度複選沒有同時選入兩個年度");
+assert(
+  selectedPaperYears.every((year) => year === 113 || year === 114),
+  "教師出卷年度複選混入未勾選年度",
+);
+assert(
+  $("paperYearQuickSummary").textContent === "114、113 學年度",
+  "教師出卷年度複選摘要錯誤",
+);
+
 dom.window.close();
 
 console.log(
@@ -143,7 +170,7 @@ console.log(
       multipleChoice90: "BDE / VERIFIED",
       mockExam114: "64 questions / 110 minutes",
       dueReview: "VERIFIED",
-      teacherPaper: "54 selected questions / answer key",
+      teacherPaper: "54 selected questions / answer key + multi-year filter",
       homepageControls: "expanded / discrimination + advanced actions visible",
       status: "VERIFIED",
     },

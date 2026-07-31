@@ -719,9 +719,21 @@ function renderPaperPicker() {
   const years = [...new Set(paperQuestions.map((question) => question.year))].sort(
     (a, b) => b - a,
   );
-  $("paperYearQuick").innerHTML =
-    '<option value="all">全部</option>' +
-    years.map((year) => `<option value="${year}">${year} 學年度</option>`).join("");
+  $("paperYearQuickOptions").innerHTML = `
+    <label class="paper-year-all">
+      <input id="paperYearAll" type="checkbox" value="all" checked>
+      全部年度
+    </label>
+    ${years
+      .map(
+        (year) => `
+          <label>
+            <input class="paper-year-checkbox" type="checkbox" value="${year}">
+            ${year} 學年度
+          </label>`,
+      )
+      .join("")}`;
+  updatePaperYearSummary();
   $("paperFilterInfo").textContent =
     `目前套用上方篩選，共 ${paperQuestions.length} 題；可再用年度與難度快速勾選。`;
   $("paperQuestionList").innerHTML = paperQuestions
@@ -747,14 +759,51 @@ function updatePaperCount() {
   $("paperCount").textContent = `已選 ${selectedPaperQuestions().length} 題`;
 }
 
+function selectedPaperYears() {
+  if ($("paperYearAll")?.checked) return null;
+  const years = [...document.querySelectorAll(".paper-year-checkbox:checked")].map(
+    (checkbox) => Number(checkbox.value),
+  );
+  return new Set(years);
+}
+
+function updatePaperYearSummary() {
+  const years = selectedPaperYears();
+  $("paperYearQuickSummary").textContent =
+    !years || !years.size
+      ? "全部年度"
+      : [...years]
+          .sort((a, b) => b - a)
+          .map((year) => `${year}`)
+          .join("、") + " 學年度";
+}
+
+function handlePaperYearChange(event) {
+  const allCheckbox = $("paperYearAll");
+  const yearCheckboxes = [...document.querySelectorAll(".paper-year-checkbox")];
+  if (event.target === allCheckbox && allCheckbox.checked) {
+    yearCheckboxes.forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+  } else if (
+    event.target.classList.contains("paper-year-checkbox") &&
+    event.target.checked
+  ) {
+    allCheckbox.checked = false;
+  }
+  if (!allCheckbox.checked && !yearCheckboxes.some((checkbox) => checkbox.checked)) {
+    allCheckbox.checked = true;
+  }
+  updatePaperYearSummary();
+}
+
 function applyPaperQuickFilter() {
-  const year = $("paperYearQuick").value;
+  const years = selectedPaperYears();
   const difficulty = $("paperDifficultyQuick").value;
   document.querySelectorAll(".paper-question-checkbox").forEach((checkbox) => {
     const question = paperQuestions[Number(checkbox.value)];
     checkbox.checked =
-      (year === "all" || String(question.year) === year) &&
-      inDifficulty(question, difficulty);
+      (!years || years.has(question.year)) && inDifficulty(question, difficulty);
   });
   updatePaperCount();
 }
@@ -1008,6 +1057,7 @@ $("paperCloseBtn").addEventListener("click", () => {
   $("paperPanel").hidden = true;
 });
 $("paperQuestionList").addEventListener("change", updatePaperCount);
+$("paperYearQuickOptions").addEventListener("change", handlePaperYearChange);
 $("paperQuickBtn").addEventListener("click", applyPaperQuickFilter);
 $("paperLinkBtn").addEventListener("click", createPaperLink);
 $("paperSelectAllBtn").addEventListener("click", () => {

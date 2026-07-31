@@ -158,9 +158,13 @@
       <p class="paper-description">勾選下方題目後，可產生線上測驗連結給學生，或直接列印學生題卷、教師答案與解析；也可下載 Word 檔自行編輯。</p>
       <p class="microcopy" id="paperFilterInfo"></p>
       <div class="paper-quick-row">
-        <label>快速勾選年度
-          <select id="paperYearQuick"><option value="all">全部</option></select>
-        </label>
+        <fieldset class="paper-year-filter">
+          <legend>快速勾選年度（可複選）</legend>
+          <details class="paper-year-multi" id="paperYearQuick">
+            <summary id="paperYearQuickSummary">全部年度</summary>
+            <div class="paper-year-options" id="paperYearQuickOptions"></div>
+          </details>
+        </fieldset>
         <label>難度
           <select id="paperDifficultyQuick">
             <option value="all">不限</option>
