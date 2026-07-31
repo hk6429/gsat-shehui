@@ -302,8 +302,15 @@ function renderHistory() {
     : '<p class="history-empty">還沒有練習紀錄，先完成一回選擇題練習看看。</p>';
 }
 
-function renderGroup(question) {
+function renderGroup(question, index) {
   if (!question.groupData) return "";
+  const groupAlreadyShown = currentQuestions
+    .slice(0, index)
+    .some(
+      (previous) =>
+        previous.year === question.year && previous.group === question.group,
+    );
+  if (groupAlreadyShown) return "";
   const group = question.groupData;
   return `
     <section class="group-material">
@@ -360,7 +367,7 @@ function selectedQuestionHtml(question, index) {
   return `
     <article class="question-card" data-index="${index}">
       <div class="question-meta">${renderTags(question)}</div>
-      ${renderGroup(question)}
+      ${renderGroup(question, index)}
       <p class="question-stem"><b>${question.year}－${question.no}.</b> ${escapeHtml(question.stem)}</p>
       ${renderMaterial(question)}
       ${question.image ? `<img class="question-image" src="${escapeHtml(question.image)}" alt="第 ${question.no} 題附圖">` : ""}
@@ -390,7 +397,7 @@ function constructedQuestionHtml(question, index) {
   return `
     <article class="question-card" data-index="${index}">
       <div class="question-meta">${renderTags(question)}</div>
-      ${renderGroup(question)}
+      ${renderGroup(question, index)}
       <p class="question-stem"><b>${question.year}－${question.no}.</b> ${escapeHtml(question.stem)}</p>
       ${question.image ? `<img class="question-image" src="${escapeHtml(question.image)}" alt="第 ${question.no} 題附圖">` : ""}
       <div class="constructed-box">
@@ -709,6 +716,14 @@ async function importRecords(file) {
 
 function renderPaperPicker() {
   paperQuestions = filteredQuestions().sort((a, b) => b.year - a.year || a.no - b.no);
+  const years = [...new Set(paperQuestions.map((question) => question.year))].sort(
+    (a, b) => b - a,
+  );
+  $("paperYearQuick").innerHTML =
+    '<option value="all">全部</option>' +
+    years.map((year) => `<option value="${year}">${year} 學年度</option>`).join("");
+  $("paperFilterInfo").textContent =
+    `目前套用上方篩選，共 ${paperQuestions.length} 題；可再用年度與難度快速勾選。`;
   $("paperQuestionList").innerHTML = paperQuestions
     .map(
       (question, index) => `
@@ -732,8 +747,46 @@ function updatePaperCount() {
   $("paperCount").textContent = `已選 ${selectedPaperQuestions().length} 題`;
 }
 
-function paperQuestionHtml(question, number) {
-  const group = question.groupData
+function applyPaperQuickFilter() {
+  const year = $("paperYearQuick").value;
+  const difficulty = $("paperDifficultyQuick").value;
+  document.querySelectorAll(".paper-question-checkbox").forEach((checkbox) => {
+    const question = paperQuestions[Number(checkbox.value)];
+    checkbox.checked =
+      (year === "all" || String(question.year) === year) &&
+      inDifficulty(question, difficulty);
+  });
+  updatePaperCount();
+}
+
+function paperShareUrl() {
+  const ids = selectedPaperQuestions().map(questionId);
+  if (!ids.length) return "";
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+  url.searchParams.set("questions", ids.join(","));
+  return url.href;
+}
+
+async function createPaperLink() {
+  const url = paperShareUrl();
+  if (!url) {
+    window.alert("請先勾選至少一題。");
+    return;
+  }
+  $("paperLinkOutput").innerHTML =
+    `學生測驗連結：<a href="${escapeHtml(url)}">${escapeHtml(url)}</a>`;
+  try {
+    await navigator.clipboard?.writeText(url);
+    $("paperLinkOutput").prepend("已複製。");
+  } catch {
+    // 瀏覽器未授權剪貼簿時，畫面上的連結仍可手動複製。
+  }
+}
+
+function paperQuestionHtml(question, number, includeGroup = true) {
+  const group = question.groupData && includeGroup
     ? `<div><b>${escapeHtml(question.groupData.title)}</b><p>${escapeHtml(question.groupData.passage)}</p>${question.groupData.image ? `<img src="${escapeHtml(question.groupData.image)}" alt="">` : ""}</div>`
     : "";
   const options =
@@ -752,6 +805,20 @@ function paperQuestionHtml(question, number) {
   </article>`;
 }
 
+function paperQuestionsHtml(questions) {
+  const shownGroups = new Set();
+  return questions
+    .map((question, index) => {
+      const groupKey = question.group
+        ? `${question.year}-${question.group}`
+        : "";
+      const includeGroup = !groupKey || !shownGroups.has(groupKey);
+      if (groupKey) shownGroups.add(groupKey);
+      return paperQuestionHtml(question, index + 1, includeGroup);
+    })
+    .join("");
+}
+
 function printPaper() {
   const questions = selectedPaperQuestions();
   if (!questions.length) {
@@ -767,10 +834,54 @@ function printPaper() {
   $("paperPrintArea").innerHTML = `
     <h1>學測社會科自編題卷</h1>
     <p>姓名：________________　班級：________　座號：________</p>
-    ${questions.map((question, index) => paperQuestionHtml(question, index + 1)).join("")}
+    ${paperQuestionsHtml(questions)}
     <section class="print-answer-key"><h2>教師答案</h2><ol>${answers}</ol></section>`;
+  const pageSize = $("paperPageSize").value;
+  document.body.classList.toggle("paper-b4", pageSize === "B4");
+  $("paperPageStyle").textContent =
+    `@page { size: ${pageSize} portrait; margin: 12mm; }`;
   document.body.classList.add("printing-paper");
   window.print();
+}
+
+function downloadPaperWord() {
+  const questions = selectedPaperQuestions();
+  if (!questions.length) {
+    window.alert("請先勾選至少一題。");
+    return;
+  }
+  const answers = questions
+    .map(
+      (question, index) =>
+        `<h3>${index + 1}. ${question.type === "constructed" ? "依官方評分原則評閱" : escapeHtml(question.officialAnswerNote ?? question.answer)}</h3>` +
+        `<p>${escapeHtml(question.explain ?? question.officialRubric ?? "")}</p>`,
+    )
+    .join("");
+  const documentHtml = `<!doctype html><html><head><meta charset="utf-8"><title>學測社會科自編題卷</title>
+    <style>body{font-family:serif;line-height:1.7}img{max-width:100%;height:auto}.answer{page-break-before:always}</style>
+    </head><body><h1>學測社會科自編題卷</h1>
+    <p>姓名：________________　班級：________　座號：________</p>
+    ${paperQuestionsHtml(questions)}
+    <section class="answer"><h1>教師答案與解析</h1>${answers}</section></body></html>`;
+  const blob = new Blob([documentHtml], {
+    type: "application/msword;charset=utf-8",
+  });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "學測社會科自編題卷.doc";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function startLinkedQuestions() {
+  const raw = new URL(window.location.href).searchParams.get("questions");
+  if (!raw) return;
+  const ids = new Set(raw.split(",").filter((id) => /^\d{2,3}-\d{1,2}$/.test(id)));
+  const questions = allQuestions().filter((question) => ids.has(questionId(question)));
+  if (!questions.length) return;
+  startSession(
+    [...questions].sort((a, b) => b.year - a.year || a.no - b.no),
+  );
 }
 
 function setFontSize(size) {
@@ -863,7 +974,7 @@ $("moreToggle").addEventListener("click", () => {
   const expanded = row.hidden;
   row.hidden = !expanded;
   $("moreToggle").setAttribute("aria-expanded", String(expanded));
-  $("moreToggle").textContent = expanded ? "收合更多功能 ▴" : "更多功能 ▾";
+  $("moreToggle").textContent = expanded ? "更多功能 ▴" : "更多功能 ▾";
 });
 $("historyBtn").addEventListener("click", () => {
   renderHistory();
@@ -897,6 +1008,8 @@ $("paperCloseBtn").addEventListener("click", () => {
   $("paperPanel").hidden = true;
 });
 $("paperQuestionList").addEventListener("change", updatePaperCount);
+$("paperQuickBtn").addEventListener("click", applyPaperQuickFilter);
+$("paperLinkBtn").addEventListener("click", createPaperLink);
 $("paperSelectAllBtn").addEventListener("click", () => {
   document.querySelectorAll(".paper-question-checkbox").forEach((checkbox) => {
     checkbox.checked = true;
@@ -910,6 +1023,7 @@ $("paperSelectNoneBtn").addEventListener("click", () => {
   updatePaperCount();
 });
 $("paperPrintBtn").addEventListener("click", printPaper);
+$("paperWordBtn").addEventListener("click", downloadPaperWord);
 window.addEventListener("afterprint", () => {
   document.body.classList.remove("printing-paper");
 });
@@ -956,3 +1070,4 @@ $("resetBtn").addEventListener("click", () => {
 });
 
 init();
+startLinkedQuestions();

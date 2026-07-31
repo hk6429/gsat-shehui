@@ -224,8 +224,8 @@ html.font-xlarge body { font-size: 1.3rem; }
 }
 .filter-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(4, minmax(135px, 1fr));
+  gap: 10px;
   padding-top: 12px;
   border-top: 1px dashed var(--line);
 }
@@ -328,6 +328,37 @@ select, input, textarea {
 .history-bar i { display: block; height: 100%; background: var(--correct); }
 .history-empty { color: var(--muted); font-size: .86rem; }
 .paper-panel { margin-top: 16px; }
+.paper-description { margin: 10px 0 0; font-size: .9rem; }
+.paper-quick-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px 12px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.paper-quick-row label {
+  display: grid;
+  grid-template-columns: auto minmax(125px, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+.paper-quick-row select,
+.paper-size-label select { min-height: 42px; }
+.paper-size-label {
+  display: grid;
+  grid-template-columns: auto minmax(145px, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+.paper-link-output {
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--accent-2);
+  font-size: .82rem;
+}
+.paper-link-output:empty { display: none; }
 .paper-question-list {
   display: grid;
   gap: 7px;
@@ -486,6 +517,7 @@ select, input, textarea {
   .page-wrap, main { width: min(100% - 20px, 860px); padding-top: 10px; }
   .intro-toggle { display: inline-flex; }
   .filter-grid { grid-template-columns: 1fr; }
+  .paper-quick-row label, .paper-size-label { grid-template-columns: 1fr; }
   .button-row { gap: 8px; }
   .button-row .button { flex: 1 1 auto; padding: 10px 16px; font-size: .95rem; }
   .quick-button { padding: 14px 18px !important; font-size: 1.02rem !important; }
@@ -520,4 +552,6 @@ select, input, textarea {
   .print-question h3 { margin: 0 0 6px; font-size: 1rem; }
   .print-options { margin: 6px 0 0; padding-left: 24px; }
   .print-answer-key { break-before: page; }
+  body.paper-b4 #paperPrintArea { column-count: 2; column-gap: 12mm; }
+  body.paper-b4 .print-answer-key { column-span: all; }
 }

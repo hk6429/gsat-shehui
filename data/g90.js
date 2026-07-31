@@ -1,4 +1,4 @@
-// 90 學測社會：由大考中心官方試題、答案與統計資料驗證。
+// 90 學測社會：由官方試題、答案、評分原則與統計資料驗證。
 window.BANK = window.BANK || [];
 window.BANK.push({
   "year": 90,
@@ -9,7 +9,7 @@ window.BANK.push({
     "G61": {
       "title": "第 61–63 題題組",
       "passage": "本題組共同材料請見大考中心官方題本原頁。",
-      "image": "img/90/pages/p-10.jpg"
+      "image": "img/90/cropped/group-61-63.jpg"
     },
     "G64": {
       "title": "第 64–66 題題組",
@@ -26,12 +26,12 @@ window.BANK.push({
     "G76": {
       "title": "第 76–78 題題組",
       "passage": "月份的平均氣壓分布圖，請回答下列問題：圖6",
-      "image": "img/90/pages/p-13.jpg"
+      "image": "img/90/cropped/group-76-78.jpg"
     },
     "G79": {
       "title": "第 79–80 題題組",
       "passage": "台 32 32 ㆙ 公尺 1000 500 0 1 公里 30000m 30 38000m 39 40 41 42 圖7",
-      "image": "img/90/pages/p-13.jpg"
+      "image": "img/90/cropped/group-79-80.jpg"
     }
   },
   "questions": [
@@ -188,7 +188,7 @@ window.BANK.push({
       },
       "statisticsAvailable": false,
       "explain": "答案為 B。依官方題圖逐項核對位置、圖例與題幹條件，乙、丙、丁、戊符合，甲不符合。選項辨析：A：誤納甲；B：四項皆正確；C：誤納甲、漏乙；D：誤納甲、漏丙；E：誤納甲、漏丁。",
-      "image": "img/90/pages/p-01.jpg"
+      "image": "img/90/cropped/q-07.jpg"
     },
     {
       "no": 8,
@@ -299,7 +299,7 @@ window.BANK.push({
       },
       "statisticsAvailable": false,
       "explain": "答案為 B。巴西高原邊緣地勢陡降，河流落差大，水力資源豐富。選項辨析：A：日本河短坡陡但國家線索不符；B：符合南美高原與水力開發；C：芬蘭地勢低平；D：加拿大水力豐富但地形圖不合；E：羅馬尼亞範圍較小。",
-      "image": "img/90/pages/p-02.jpg"
+      "image": "img/90/cropped/q-12.jpg"
     },
     {
       "no": 13,
@@ -401,11 +401,11 @@ window.BANK.push({
         "A": "新加坡 1921 1931",
         "B": "香港",
         "C": "台灣籍貫人口數比例 (%) 人口數比例 (%)",
-        "D": "澳門廣東 747,680 63.81 1,041,271 61.09 廣西 998 0.09 46,095 2.70 福建 398,566 34.01 586,061 34.38"
+        "D": "澳門"
       },
       "statisticsAvailable": false,
       "explain": "答案為 A。表中粵籍與閩籍華人比例顯示殖民港口人口由鄰近華南移入，最符合新加坡。選項辨析：A：福建、廣東移民構成顯著；B：香港本身位於廣東，結構不同；C：臺灣閩粵分類與數據不合；D：澳門規模與人口數不符。",
-      "image": "img/90/pages/p-03.jpg"
+      "image": "img/90/cropped/q-17.jpg"
     },
     {
       "no": 18,
@@ -574,7 +574,7 @@ window.BANK.push({
       },
       "statisticsAvailable": false,
       "explain": "答案為 C。康熙中後期完成平定三藩與統一臺灣後，局勢趨穩、財政庫存持續增加。選項辨析：A：內憂外患會消耗庫存；B：數字不是貿易總額；C：符合年代與盈餘趨勢；D：不能把全部增加歸因關稅。",
-      "image": "img/90/pages/p-04.jpg"
+      "image": "img/90/cropped/q-25.jpg"
     },
     {
       "no": 26,
@@ -722,7 +722,7 @@ window.BANK.push({
       },
       "statisticsAvailable": false,
       "explain": "答案為 A。北伐期間國民政府為籌措軍費在上海增稅，引發商民批評。選項辨析：A：符合時空與財政目的；B：不是針對英國關稅控制；C：日本軍部尚未在上海建立此徵稅統治；D：中共當時未控制上海。",
-      "image": "img/90/pages/p-06.jpg"
+      "image": "img/90/cropped/q-32.jpg"
     },
     {
       "no": 33,
@@ -849,7 +849,7 @@ window.BANK.push({
       },
       "statisticsAvailable": false,
       "explain": "答案為 A。中東衝突使德國面臨納粹歷史責任與阿拉伯能源、外交關係間的兩難。選項辨析：A：符合圖意中的外交拉扯；B：石油危機是後果但未直接解釋德國兩難；C：重點不在美國牟利；D：阿以並未合作抗英。",
-      "image": "img/90/pages/p-07.jpg"
+      "image": "img/90/cropped/q-38.jpg"
     },
     {
       "no": 39,
@@ -1344,8 +1344,7 @@ window.BANK.push({
       },
       "group": "G61",
       "statisticsAvailable": false,
-      "explain": "答案為 B。沖積扇頂端靠近山口、顆粒粗，扇端向低地方向延伸；依題圖其展布由北向南。選項辨析：A：方向相反；B：符合等高線與扇形展布；C：非東西向；D：非東南至西北；E：非西南至東北。",
-      "image": "img/90/pages/p-11.jpg"
+      "explain": "答案為 B。沖積扇頂端靠近山口、顆粒粗，扇端向低地方向延伸；依題圖其展布由北向南。選項辨析：A：方向相反；B：符合等高線與扇形展布；C：非東西向；D：非東南至西北；E：非西南至東北。"
     },
     {
       "no": 62,
@@ -1687,8 +1686,7 @@ window.BANK.push({
       },
       "group": "G76",
       "statisticsAvailable": false,
-      "explain": "答案為 A。南半球一月為夏季，日照較長、氣溫較高，符合題幹氣候圖的高溫月份。選項辨析：A：南半球盛夏；B：秋季；C：冬季初期；D：冬末；E：春季，均不如一月符合高溫峰值。",
-      "image": "img/90/pages/p-13.jpg"
+      "explain": "答案為 A。南半球一月為夏季，日照較長、氣溫較高，符合題幹氣候圖的高溫月份。選項辨析：A：南半球盛夏；B：秋季；C：冬季初期；D：冬末；E：春季，均不如一月符合高溫峰值。"
     },
     {
       "no": 77,
@@ -1734,8 +1732,7 @@ window.BANK.push({
       },
       "group": "G76",
       "statisticsAvailable": false,
-      "explain": "答案為 E。東西岸或同緯度地區的溫度差異若主要受大陸與海洋熱性質不同影響，控制因素是海陸分布。選項辨析：A：植被多為氣候結果；B：洋流可調節沿岸但不能完全解釋題圖；C：山脈走向影響降水；D：海拔影響垂直溫度；E：最符合大尺度差異。",
-      "image": "img/90/pages/p-13.jpg"
+      "explain": "答案為 E。東西岸或同緯度地區的溫度差異若主要受大陸與海洋熱性質不同影響，控制因素是海陸分布。選項辨析：A：植被多為氣候結果；B：洋流可調節沿岸但不能完全解釋題圖；C：山脈走向影響降水；D：海拔影響垂直溫度；E：最符合大尺度差異。"
     },
     {
       "no": 79,

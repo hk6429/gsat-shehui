@@ -1,4 +1,4 @@
-// 99 學測社會：由大考中心官方試題、答案與統計資料驗證。
+// 99 學測社會：由官方試題、答案、評分原則與統計資料驗證。
 window.BANK = window.BANK || [];
 window.BANK.push({
   "year": 99,
@@ -21,7 +21,7 @@ window.BANK.push({
     "G23": {
       "title": "第 23–24 題題組",
       "passage": "本題組共同材料請見大考中心官方題本原頁。",
-      "image": "img/99/pages/p-05.jpg"
+      "image": "img/99/cropped/group-23-24.jpg"
     },
     "G47": {
       "title": "第 47–48 題題組",
@@ -34,7 +34,7 @@ window.BANK.push({
     "G65": {
       "title": "第 65–67 題題組",
       "passage": "本題組共同材料請見大考中心官方題本原頁。",
-      "image": "img/99/pages/p-13.jpg"
+      "image": "img/99/cropped/group-65-67.jpg"
     },
     "G68": {
       "title": "第 68–70 題題組",
@@ -43,7 +43,7 @@ window.BANK.push({
     "G71": {
       "title": "第 71–72 題題組",
       "passage": "本題組共同材料請見大考中心官方題本原頁。",
-      "image": "img/99/pages/p-15.jpg"
+      "image": "img/99/cropped/group-71-72.jpg"
     }
   },
   "questions": [

@@ -40,6 +40,11 @@ for (const expected of [
   'id="importBtn"',
   'id="submitSessionBtn"',
   'id="paperPrintArea"',
+  'id="paperYearQuick"',
+  'id="paperDifficultyQuick"',
+  'id="paperLinkBtn"',
+  'id="paperPageSize"',
+  'id="paperWordBtn"',
 ]) {
   if (!index.includes(expected)) {
     throw new Error(`Homepage lacks reference-site feature contract: ${expected}`);
@@ -57,6 +62,10 @@ for (const expected of [
   "async function importRecords(",
   "function renderPaperPicker(",
   "function printPaper(",
+  "function applyPaperQuickFilter(",
+  "async function createPaperLink(",
+  "function downloadPaperWord(",
+  "function startLinkedQuestions(",
 ]) {
   if (!app.includes(expected)) {
     throw new Error(`App lacks reference-site behavior contract: ${expected}`);

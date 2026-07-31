@@ -16,6 +16,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
+  <style id="paperPageStyle"></style>
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要內容</a>
@@ -45,7 +46,7 @@
     </section>
 
     <section class="intro-box no-print" id="introBox">
-      <h2>涵蓋 114–115 學年度社會考科．<span id="totalStat">—</span> 題附官方資料</h2>
+      <h2>涵蓋 90–115 學年度社會考科．<span id="totalStat">—</span> 題附官方資料</h2>
       <b>這是什麼？</b>從大學學測社會考科中，挑選年份、學科、能力目標、題型與題數，當場作答、立刻看到對錯。選擇題附大考中心官方答對率、鑑別度與選項分析，非選擇題保留官方滿分答案與評分原則。
       <button class="text-toggle intro-toggle" id="introToggle" type="button" aria-expanded="true">看更多 ▾</button>
       <span class="intro-rest"><br>
@@ -60,7 +61,7 @@
     </section>
 
     <section class="panel controls no-print" id="filterPanel" aria-labelledby="filterTitle">
-      <div class="tool-row">
+      <div class="tool-row filter-heading">
         <h2 id="filterTitle">選擇範圍</h2>
         <button class="text-toggle" id="advancedToggle" type="button" aria-expanded="true" aria-controls="filterBody">收合進階篩選 ▴</button>
       </div>
@@ -124,7 +125,7 @@
         <button class="button primary" id="reviewBtn" type="button" hidden>今日該複習 <b>0</b> 題</button>
         <button class="button secondary" id="wrongBtn" type="button">錯題本（<span id="wrongCount">0</span>）</button>
         <button class="button secondary" id="historyBtn" type="button">學習歷程</button>
-        <button class="text-toggle" id="moreToggle" type="button" aria-expanded="true">收合更多功能 ▴</button>
+        <button class="text-toggle" id="moreToggle" type="button" aria-expanded="true">更多功能 ▴</button>
       </div>
       <div class="button-row more-row" id="moreRow">
         <button class="button secondary" id="mockBtn" type="button">整回模考（需先選年份）</button>
@@ -154,13 +155,37 @@
         <h2>出卷模式（老師）</h2>
         <button class="text-toggle" id="paperCloseBtn" type="button">關閉</button>
       </div>
-      <p class="microcopy">依目前篩選條件列出題目；勾選後可直接列印學生題卷與教師答案。</p>
+      <p class="paper-description">勾選下方題目後，可產生線上測驗連結給學生，或直接列印學生題卷、教師答案與解析；也可下載 Word 檔自行編輯。</p>
+      <p class="microcopy" id="paperFilterInfo"></p>
+      <div class="paper-quick-row">
+        <label>快速勾選年度
+          <select id="paperYearQuick"><option value="all">全部</option></select>
+        </label>
+        <label>難度
+          <select id="paperDifficultyQuick">
+            <option value="all">不限</option>
+            <option value="easy">較簡單（≥ 70%）</option>
+            <option value="medium">中等（40%–69%）</option>
+            <option value="hard">較難（&lt; 40%）</option>
+          </select>
+        </label>
+        <button class="button secondary" id="paperQuickBtn" type="button">套用（只勾符合的）</button>
+      </div>
       <div class="button-row compact-row">
         <button class="button secondary" id="paperSelectAllBtn" type="button">全選</button>
         <button class="button secondary" id="paperSelectNoneBtn" type="button">全不選</button>
+        <button class="button primary" id="paperLinkBtn" type="button">產生測驗連結</button>
+        <label class="paper-size-label">紙張
+          <select id="paperPageSize">
+            <option value="B4">B4（雙欄推薦）</option>
+            <option value="A4">A4</option>
+          </select>
+        </label>
         <button class="button primary" id="paperPrintBtn" type="button">列印題卷</button>
+        <button class="button secondary" id="paperWordBtn" type="button">下載 Word 檔</button>
         <span id="paperCount" aria-live="polite">已選 0 題</span>
       </div>
+      <p class="paper-link-output" id="paperLinkOutput" aria-live="polite"></p>
       <div class="paper-question-list" id="paperQuestionList"></div>
     </section>
 

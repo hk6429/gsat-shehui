@@ -1,4 +1,4 @@
-// 101 學測社會：由大考中心官方試題、答案與統計資料驗證。
+// 101 學測社會：由官方試題、答案、評分原則與統計資料驗證。
 window.BANK = window.BANK || [];
 window.BANK.push({
   "year": 101,
@@ -17,7 +17,7 @@ window.BANK.push({
     "G52": {
       "title": "第 52–53 題題組",
       "passage": "本題組共同材料請見大考中心官方題本原頁。",
-      "image": "img/101/pages/p-11.jpg"
+      "image": "img/101/cropped/group-52-53.jpg"
     },
     "G54": {
       "title": "第 54–56 題題組",
@@ -34,7 +34,7 @@ window.BANK.push({
     "G61": {
       "title": "第 61–63 題題組",
       "passage": "本題組共同材料請見大考中心官方題本原頁。",
-      "image": "img/101/pages/p-13.jpg"
+      "image": "img/101/cropped/group-61-63.jpg"
     },
     "G64": {
       "title": "第 64–66 題題組",
@@ -47,7 +47,7 @@ window.BANK.push({
     "G70": {
       "title": "第 70–72 題題組",
       "passage": "本題組共同材料請見大考中心官方題本原頁。",
-      "image": "img/101/pages/p-15.jpg"
+      "image": "img/101/cropped/group-70-72.jpg"
     }
   },
   "questions": [
@@ -455,7 +455,7 @@ window.BANK.push({
         }
       },
       "explain": "答案為 A。圖中和平黨與正義黨長期輪流占據主要席次，其餘政黨規模明顯較小，政權競爭以兩大黨為核心。選項辨析：A：兩個主要政黨主導國會，最符合兩黨制；B：有小黨存在不等於多黨制，須看是否共同左右組閣；C：圖中有多黨競爭與選舉；D：沒有單一政黨長期壓倒性獨大。",
-      "image": "img/101/pages/p-04.jpg"
+      "image": "img/101/cropped/q-09.jpg"
     },
     {
       "no": 10,
