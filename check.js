@@ -1,3 +1,5 @@
+import { bindReportForm, reportFormHtml } from "./report-client.js";
+
 const $ = (id) => document.getElementById(id);
 const disciplineLabels = {
   history: "歷史",
@@ -53,7 +55,29 @@ function render() {
       ${question.image ? `<img class="question-image" src="${escapeHtml(question.image)}" alt="第 ${question.no} 題附圖">` : ""}
       ${answerHtml}
       ${question.sourceReview === "pending" ? '<p class="source-warning">尚未完成逐字原卷覆核，不得視為正式版。</p>' : ""}
+      ${reportFormHtml()}
     </article>`;
+  const card = $("result").querySelector(".question-card");
+  bindReportForm(card, () => ({
+    questionId: `${bank.year}-${question.no}`,
+    year: bank.year,
+    era: bank.era || "學測",
+    no: question.no,
+    discipline: disciplineLabels[question.discipline],
+    objective: question.objective,
+    tags: (question.tags || []).join("、"),
+    type: question.type === "constructed" ? "非選擇題" : question.type === "multiple" ? "複選題" : "單選題",
+    stem: question.stem,
+    context: [group?.title, group?.passage, card.querySelector(".material")?.innerText].filter(Boolean).join("\n"),
+    options: Object.entries(question.options || {}).map(([key, value]) => `(${key}) ${value}`).join("\n"),
+    answer: question.type === "constructed" ? question.officialAnswer || "請見評分原則" : question.answer,
+    explain: question.type === "constructed" ? question.officialRubric : question.explain,
+      image: (question.image || group?.image)
+        ? new URL(question.image || group.image, window.location.href).href
+        : "",
+    url: window.location.href,
+    device: navigator.userAgent,
+  }), window.location);
 }
 
 $("queryBtn").addEventListener("click", render);

@@ -620,6 +620,27 @@ select, input, textarea {
 .constructed-box textarea { min-height: 120px; resize: vertical; }
 .rubric { white-space: pre-wrap; }
 .source-warning { color: #8a4f00; font-size: .8rem; }
+.report-box { padding-top: 12px; margin-top: 14px; border-top: 1px dashed var(--line); }
+.report-toggle {
+  min-height: 44px;
+  padding: 8px 12px;
+  color: var(--accent-2);
+  background: #f4f6fc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.report-form { padding: 12px; margin-top: 8px; background: #f8f9fd; border: 1px solid var(--line); border-radius: 8px; }
+.report-form fieldset { padding: 0; margin: 0 0 10px; border: 0; }
+.report-form legend { margin-bottom: 6px; color: var(--ink); font-size: .88rem; font-weight: 700; }
+.report-reasons { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.report-reasons label { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; color: var(--ink); font-weight: 500; }
+.report-reasons input { width: 18px; min-height: 18px; accent-color: var(--seal); }
+.report-note { min-height: 70px; resize: vertical; }
+.report-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; }
+.report-status { color: var(--accent-2); font-size: .85rem; font-weight: 700; }
+.report-honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 
 .site-footer {
   padding: 18px 16px 48px;

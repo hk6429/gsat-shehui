@@ -11,7 +11,8 @@
     "validate:explanations": "node scripts/validate-explanations.mjs",
     "validate:ui": "node scripts/validate-ui.mjs",
     "validate:interactions": "node scripts/validate-interactions.mjs",
-    "test": "npm run build && npm run validate:data && npm run validate:content && npm run validate:explanations && npm run validate:ui && npm run validate:interactions"
+    "validate:report": "node scripts/validate-report.mjs",
+    "test": "npm run build && npm run validate:data && npm run validate:content && npm run validate:explanations && npm run validate:ui && npm run validate:interactions && npm run validate:report"
   },
   "devDependencies": {
     "jsdom": "^30.0.1"

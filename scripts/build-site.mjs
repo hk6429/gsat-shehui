@@ -15,6 +15,7 @@ const files = [
   "manifest.json",
   "poster.html",
   "privacy.html",
+  "report-client.js",
   "robots.txt",
   "sitemap.xml",
   "styles.css",

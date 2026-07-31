@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { JSDOM } from "jsdom";
+import { bindReportForm, reportFormHtml } from "../report-client.js";
 
 const root = new URL("../", import.meta.url);
 const html = fs.readFileSync(new URL("index.html", root), "utf8");
@@ -27,9 +28,13 @@ window.print = () => {
 };
 window.URL.createObjectURL = () => "blob:records";
 window.URL.revokeObjectURL = () => {};
+window.__REPORT_CLIENT__ = { bindReportForm, reportFormHtml };
 
 window.eval(bankSource);
-window.eval(appSource);
+window.eval(appSource.replace(
+  'import { bindReportForm, reportFormHtml } from "./report-client.js";',
+  "const { bindReportForm, reportFormHtml } = window.__REPORT_CLIENT__;",
+));
 
 const $ = (id) => window.document.getElementById(id);
 const click = (element) =>

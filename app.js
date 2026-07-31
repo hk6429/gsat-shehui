@@ -1,3 +1,5 @@
+import { bindReportForm, reportFormHtml } from "./report-client.js";
+
 const banks = Array.isArray(window.BANK) ? window.BANK : [];
 const disciplineLabels = {
   history: "歷史",
@@ -546,6 +548,44 @@ function optionAnalysisTable(question) {
     </table>`;
 }
 
+function questionOptionsText(question) {
+  return Object.entries(question.options || {})
+    .map(([key, value]) => `(${key}) ${value}`)
+    .join("\n");
+}
+
+function questionReportContext(question, card) {
+  const group = question.groupData;
+  const context = [
+    group?.title,
+    group?.passage,
+    card.querySelector(".material")?.innerText,
+  ].filter(Boolean).join("\n");
+  const picked = question.type === "constructed"
+    ? card.querySelector(".constructed-box textarea")?.value
+    : card.dataset.picked || pendingAnswers[questionId(question)] || "";
+  const image = question.image || group?.image || "";
+  return {
+    questionId: questionId(question),
+    year: question.year,
+    era: question.era || "學測",
+    no: question.no,
+    discipline: disciplineLabels[question.discipline],
+    objective: objectiveLabels[question.objective] ?? question.objective,
+    tags: (question.tags || []).join("、"),
+    type: question.type === "constructed" ? "非選擇題" : question.type === "multiple" ? "複選題" : "單選題",
+    stem: question.stem,
+    context,
+    options: questionOptionsText(question),
+    answer: question.type === "constructed" ? question.officialAnswer || "請見評分原則" : question.answer,
+    picked,
+    explain: question.type === "constructed" ? question.officialRubric : question.explain,
+    image: image ? new URL(image, window.location.href).href : "",
+    url: window.location.href,
+    device: navigator.userAgent,
+  };
+}
+
 function selectedQuestionHtml(question, index) {
   return `
     <article class="question-card" data-index="${index}">
@@ -573,6 +613,7 @@ function selectedQuestionHtml(question, index) {
         ${optionAnalysisTable(question)}
       </details>` : '<p class="source-warning">本年度大考中心未公布逐題答對率、鑑別度與選項分析。</p>'}
       ${question.sourceReview === "pending" ? '<p class="source-warning">此題仍在逐字原卷覆核佇列，尚未進入正式版。</p>' : ""}
+      ${reportFormHtml()}
     </article>`;
 }
 
@@ -591,6 +632,7 @@ function constructedQuestionHtml(question, index) {
         <div class="rubric" hidden></div>
       </div>
       ${question.sourceReview === "pending" ? '<p class="source-warning">此題仍在逐字原卷覆核佇列，尚未進入正式版。</p>' : ""}
+      ${reportFormHtml()}
     </article>`;
 }
 
@@ -630,6 +672,7 @@ function startTimer(seconds) {
 function revealSelectedResult(card, question, chosen) {
   if (card.dataset.answered === "true") return;
   card.dataset.answered = "true";
+  card.dataset.picked = chosen;
   const accepted = question.acceptedAnswers ?? [question.answer];
   const isCorrect = accepted.includes(chosen);
   const officialAnswer = question.officialAnswerNote
@@ -688,6 +731,7 @@ function submitDeferredSession(fromTimer = false) {
 function bindQuestionEvents() {
   document.querySelectorAll(".question-card").forEach((card) => {
     const question = currentQuestions[Number(card.dataset.index)];
+    bindReportForm(card, () => questionReportContext(question, card), window.location);
     if (question.type === "constructed") {
       const button = card.querySelector(".reveal-rubric");
       if (["timed", "mock"].includes(sessionMode)) button.hidden = true;
