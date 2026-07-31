@@ -526,26 +526,122 @@ function renderTags(question) {
   ].join("");
 }
 
-function optionAnalysisTable(question) {
-  if (!question.optionStats) return "";
-  const optionLabels = Object.keys(question.optionStats.T).filter(
-    (label) => label !== "未答",
+function formatOptionPercent(value) {
+  const number = Number(value);
+  return Number.isInteger(number) ? String(number) : number.toFixed(1);
+}
+
+function correctOptionKeys(question) {
+  const answers = question.acceptedAnswers ?? [question.answer];
+  return new Set(
+    answers.flatMap((answer) => String(answer).match(/[A-E]/g) ?? []),
   );
-  const rows = [
-    ["全體", question.optionStats.T],
-    ["高分組", question.optionStats.H],
-    ["低分組", question.optionStats.L],
-  ];
-  return `
-    <table class="analysis-table">
-      <thead><tr><th>組別</th><th>未答</th>${optionLabels.map((label) => `<th>${label}</th>`).join("")}</tr></thead>
-      <tbody>${rows
-        .map(
-          ([label, values]) =>
-            `<tr><th>${label}</th><td>${values["未答"]}%</td>${optionLabels.map((option) => `<td>${values[option]}%</td>`).join("")}</tr>`,
-        )
-        .join("")}</tbody>
-    </table>`;
+}
+
+function optionAnalysisRows(question, group = "T") {
+  const stats = question.optionStats?.[group];
+  if (!stats) return "";
+  const correctKeys = correctOptionKeys(question);
+  const wrongKeys = Object.keys(question.options).filter(
+    (key) => !correctKeys.has(key),
+  );
+  const lure = wrongKeys
+    .slice()
+    .sort((a, b) => Number(stats[b] ?? -1) - Number(stats[a] ?? -1))[0];
+  const groupLabel = group === "L" ? "低分組" : "全體考生";
+  return Object.keys(question.options)
+    .map((key) => {
+      const value = Number(stats[key]);
+      if (!Number.isFinite(value)) return "";
+      const correct = correctKeys.has(key);
+      const lureLabel = !correct && key === lure && value >= 10
+        ? " ← 最多人畫記的錯誤選項"
+        : "";
+      const width = Math.max(0, Math.min(100, value));
+      const label = `(${key})${correct ? " ✓正解" : lureLabel}`;
+      return `<div class="option-stat-row">
+        <span class="option-stat-name">${label}</span>
+        <span class="option-stat-bar" role="progressbar" aria-label="${groupLabel}${key}選項畫記率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${width}">
+          <span class="option-stat-fill${correct ? " correct" : ""}" style="width:${width}%"></span>
+        </span>
+        <span class="option-stat-number">${formatOptionPercent(value)}%</span>
+      </div>`;
+    })
+    .join("");
+}
+
+function optionStatsNote(question, group = "T") {
+  const stats = question.optionStats?.[group];
+  if (!stats) return "";
+  const groupLabel = group === "L" ? "低分組" : "全體考生";
+  const unanswered = Number(stats["未答"]);
+  const unansweredText = Number.isFinite(unanswered)
+    ? `；未答 ${formatOptionPercent(unanswered)}%。`
+    : "。";
+  return question.type === "multiple"
+    ? `${groupLabel}各選項為獨立畫記率，不應相加${unansweredText}`
+    : `${groupLabel}單選題各選項連同未答約為 100%${unansweredText}`;
+}
+
+function optionLureTeachingLine(question) {
+  const total = question.optionStats?.T;
+  const low = question.optionStats?.L;
+  if (!total || !low) return "";
+  const correctKeys = correctOptionKeys(question);
+  const top = Object.keys(question.options)
+    .filter((key) => !correctKeys.has(key))
+    .map((key) => ({ key, gap: Number(low[key]) - Number(total[key]) }))
+    .filter(({ gap }) => Number.isFinite(gap))
+    .sort((a, b) => b.gap - a.gap)[0];
+  if (!top || top.gap < 5) return "";
+  return `<p class="option-lure-note">低分組有 ${formatOptionPercent(low[top.key])}% 畫記 (${top.key})，比全體高 ${formatOptionPercent(top.gap)} 個百分點，可優先檢查這個選項反映的迷思。</p>`;
+}
+
+function optionAnalysisPanel(question) {
+  if (!question.optionStats?.T) return "";
+  const hasLowGroup = Boolean(question.optionStats.L);
+  return `<section class="option-stats" aria-label="大考中心官方選項畫記率">
+    <b class="option-stats-title" aria-live="polite">全體考生選項畫記率（大考中心官方統計）</b>
+    ${hasLowGroup ? `<div class="option-stats-toggle no-print" role="group" aria-label="切換統計群體">
+      <button type="button" class="active" data-stats-group="T" aria-pressed="true">全體</button>
+      <button type="button" data-stats-group="L" aria-pressed="false">低分組</button>
+    </div>` : ""}
+    <div class="option-stats-rows">${optionAnalysisRows(question)}</div>
+    <p class="option-stats-note">${optionStatsNote(question)}</p>
+    ${optionLureTeachingLine(question)}
+  </section>`;
+}
+
+function officialStatisticsHtml(question) {
+  if (typeof question.pass !== "number") return "";
+  return `<section class="official-statistics" aria-label="大考中心官方統計">
+    <div class="stat-grid">
+      <div><b>答對率</b><br>${Math.round(question.pass * 100)}%</div>
+      <div><b>鑑別度</b><br>${question.disc}</div>
+    </div>
+    ${optionAnalysisPanel(question)}
+  </section>`;
+}
+
+function bindOptionStatsToggle(container, question) {
+  const panel = container.querySelector(".option-stats");
+  if (!panel) return;
+  panel.querySelectorAll(".option-stats-toggle button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const group = button.dataset.statsGroup;
+      panel.querySelectorAll(".option-stats-toggle button").forEach((candidate) => {
+        const selected = candidate === button;
+        candidate.classList.toggle("active", selected);
+        candidate.setAttribute("aria-pressed", String(selected));
+      });
+      panel.querySelector(".option-stats-title").textContent =
+        `${group === "L" ? "低分組" : "全體考生"}選項畫記率（大考中心官方統計）`;
+      panel.querySelector(".option-stats-rows").innerHTML =
+        optionAnalysisRows(question, group);
+      panel.querySelector(".option-stats-note").textContent =
+        optionStatsNote(question, group);
+    });
+  });
 }
 
 function questionOptionsText(question) {
@@ -604,14 +700,7 @@ function selectedQuestionHtml(question, index) {
       </div>
       ${question.type === "multiple" ? '<button class="button secondary confirm-multiple" type="button">確認複選答案</button>' : ""}
       <div class="feedback" hidden aria-live="polite"></div>
-      ${typeof question.pass === "number" ? `<details class="official-stats">
-        <summary>查看官方統計</summary>
-        <div class="stat-grid">
-          <div><b>答對率</b><br>${Math.round(question.pass * 100)}%</div>
-          <div><b>鑑別度</b><br>${question.disc}</div>
-        </div>
-        ${optionAnalysisTable(question)}
-      </details>` : '<p class="source-warning">本年度大考中心未公布逐題答對率、鑑別度與選項分析。</p>'}
+      ${typeof question.pass === "number" ? "" : '<p class="source-warning">本年度大考中心未公布逐題答對率、鑑別度與選項分析。</p>'}
       ${question.sourceReview === "pending" ? '<p class="source-warning">此題仍在逐字原卷覆核佇列，尚未進入正式版。</p>' : ""}
       ${reportFormHtml()}
     </article>`;
@@ -703,7 +792,8 @@ function revealSelectedResult(card, question, chosen) {
       ? `✗ 這題選了 ${chosen}，${officialAnswer}`
       : `✗ 本題未作答，${officialAnswer}`;
   feedback.innerHTML =
-    `${resultText}<p class="explanation"><b>解析：</b>${escapeHtml(question.explain)}</p>`;
+    `${resultText}<p class="explanation"><b>解析：</b>${escapeHtml(question.explain)}</p>${officialStatisticsHtml(question)}`;
+  bindOptionStatsToggle(feedback, question);
   answered += 1;
   if (isCorrect) correct += 1;
   recordWrongBookResult(question, isCorrect);

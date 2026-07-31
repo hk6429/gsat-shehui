@@ -133,6 +133,20 @@ assert(timedCard.querySelector(".feedback").hidden, "計時模式作答後不應
 assert(!$("submitSessionBtn").hidden && !$("timerText").hidden, "計時模式缺少交卷或倒數");
 click($("submitSessionBtn"));
 assert(!timedCard.querySelector(".feedback").hidden, "計時模式交卷後未顯示結果");
+const statsPanel = timedCard.querySelector(".option-stats");
+assert(statsPanel, "作答後解析區未顯示官方選項畫記率");
+assert(
+  statsPanel.querySelectorAll('.option-stat-bar[role="progressbar"]').length === 4,
+  "官方選項畫記率未以四個橫條呈現",
+);
+const lowStatsButton = statsPanel.querySelector('[data-stats-group="L"]');
+assert(lowStatsButton, "官方選項畫記率缺少低分組切換");
+click(lowStatsButton);
+assert(
+  lowStatsButton.getAttribute("aria-pressed") === "true" &&
+    statsPanel.querySelector(".option-stats-title").textContent.startsWith("低分組"),
+  "低分組選項畫記率切換失效",
+);
 
 // 90 年舊制複選題：可同時選取多個答案，確認後依官方答案 BDE 判分。
 click($("resetBtn"));

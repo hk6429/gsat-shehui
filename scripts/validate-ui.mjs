@@ -78,10 +78,30 @@ for (const expected of [
   "async function createPaperLink(",
   "function downloadPaperWord(",
   "function startLinkedQuestions(",
+  "function optionAnalysisRows(",
+  "function optionStatsNote(",
+  "function optionLureTeachingLine(",
+  "function bindOptionStatsToggle(",
 ]) {
   if (!app.includes(expected)) {
     throw new Error(`App lacks reference-site behavior contract: ${expected}`);
   }
+}
+
+for (const expected of [
+  'class="option-stats"',
+  'data-stats-group="T"',
+  'data-stats-group="L"',
+  'aria-pressed="true"',
+  'role="progressbar"',
+  "最多人畫記的錯誤選項",
+]) {
+  if (!app.includes(expected)) {
+    throw new Error(`App lacks official option statistics contract: ${expected}`);
+  }
+}
+if (app.includes('<table class="analysis-table">')) {
+  throw new Error("Official option statistics must not fall back to the old table layout");
 }
 
 const context = { window: {} };

@@ -2,6 +2,11 @@
 
 免費、免註冊的大學學測社會科歷屆試題分類練習網站。
 
+## 正式網站
+
+- 正式主站：[Cloudflare Pages](https://gsat-shehui.pages.dev/)
+- 備援站：[Vercel](https://gsat-shehui.vercel.app/)／[Netlify](https://gsat-shehui.netlify.app/)
+
 目前已完成：
 
 - 90–115 學年度學測社會考科
