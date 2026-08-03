@@ -29,7 +29,7 @@ export function formatMessage(input) {
   const explain = clean(p.explain, 1200);
   const image = clean(p.image, 500);
   const lines = [
-    "🚩 學測社會題庫問題回報",
+    "學測-社會科題目問題回報",
     "",
     `題目：${clean(p.questionId, 80) || "未提供"}`,
     `來源：${clean(p.era, 20) || "學測"} ${clean(p.year, 10)} 年第 ${clean(p.no, 10)} 題`,
