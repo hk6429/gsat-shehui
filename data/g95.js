@@ -20,7 +20,8 @@ window.BANK.push({
     },
     "G66": {
       "title": "第 66–67 題題組",
-      "passage": "極端反對溫和反對中立溫和支持極端支持圖六"
+      "passage": "圖六是甲、乙兩國有關某社會議題的民意分布圖。",
+      "image": "img/95/cropped/group-66-67.jpg"
     },
     "G68": {
       "title": "第 68–69 題題組",
