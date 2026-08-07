@@ -30,9 +30,9 @@ export function buildReportPayload(input) {
 
 export function reportEndpoint(locationLike) {
   const hostname = String(locationLike?.hostname || "");
-  return hostname === "gsat-shehui.vercel.app" || hostname.endsWith(".vercel.app")
+  return ["gsat-shehui.pages.dev", "localhost", "127.0.0.1"].includes(hostname)
     ? "/api/report"
-    : "https://gsat-shehui.vercel.app/api/report";
+    : "https://gsat-shehui.pages.dev/api/report";
 }
 
 export async function submitReport(input, locationLike, fetchImpl) {

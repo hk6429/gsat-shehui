@@ -39,9 +39,9 @@ assert.equal(payload.options.length, 1400);
 assert.equal(payload.explain.length, 1200);
 assert.equal("unexpected" in payload, false);
 
-assert.equal(reportEndpoint({ hostname: "gsat-shehui.vercel.app" }), "/api/report");
-assert.equal(reportEndpoint({ hostname: "gsat-shehui.pages.dev" }), "https://gsat-shehui.vercel.app/api/report");
-assert.equal(reportEndpoint({ hostname: "gsat-shehui.netlify.app" }), "https://gsat-shehui.vercel.app/api/report");
+assert.equal(reportEndpoint({ hostname: "gsat-shehui.pages.dev" }), "/api/report");
+assert.equal(reportEndpoint({ hostname: "gsat-shehui.vercel.app" }), "https://gsat-shehui.pages.dev/api/report");
+assert.equal(reportEndpoint({ hostname: "gsat-shehui.netlify.app" }), "https://gsat-shehui.pages.dev/api/report");
 
 let clientRequest;
 await submitReport(
@@ -52,7 +52,7 @@ await submitReport(
     return { ok: true, json: async () => ({ ok: true }) };
   },
 );
-assert.equal(clientRequest.url, "https://gsat-shehui.vercel.app/api/report");
+assert.equal(clientRequest.url, "/api/report");
 assert.equal(clientRequest.options.method, "POST");
 
 const message = formatMessage({

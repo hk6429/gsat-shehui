@@ -55,7 +55,7 @@ export function formatMessage(input) {
 }
 
 function allowedOrigins() {
-  const extras = clean(process.env.REPORT_ALLOWED_ORIGINS || "", 1000)
+  const extras = clean(globalThis.process?.env?.REPORT_ALLOWED_ORIGINS || "", 1000)
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
@@ -120,8 +120,9 @@ export default async function handler(req, res) {
     return res.status(429).json({ ok: false, error: "回報次數過多，請稍後再試" });
   }
 
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const environment = req.env || globalThis.process?.env || {};
+  const token = environment.TELEGRAM_BOT_TOKEN;
+  const chatId = environment.TELEGRAM_CHAT_ID;
   if (!token || !chatId) {
     return res.status(503).json({ ok: false, error: "教師回報系統尚未完成設定" });
   }
